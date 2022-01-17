@@ -1,6 +1,7 @@
 import pandas
 
 class AminoAcidProperty(object):
+    """Amino acid dataframe."""
 
     def __init__(self, dataframe):
 
@@ -17,6 +18,7 @@ class AminoAcidProperty(object):
 
 
 class AminoAcidVolumeChange(AminoAcidProperty):
+    """Change in volume (ang^3) of an amino acid site due to a mutation."""
 
     def __init__(self):
 

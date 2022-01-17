@@ -1,5 +1,5 @@
 import pandas
-import sbmlcore
+from sbmlcore.AminoAcidProperties import AminoAcidProperty
 
 def test_amino_acid_volume_change():
 
@@ -7,5 +7,5 @@ def test_amino_acid_volume_change():
     df = pandas.DataFrame.from_dict(a)
 
     a = sbmlcore.AminoAcidVolumeChange()
-    df3 =  a + df 
+    df3 =  a + df
     assert 'd_volume' in df3.columns
