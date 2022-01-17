@@ -18,7 +18,7 @@ class AminoAcidProperty(object):
 
 class AminoAcidVolumeChange(AminoAcidProperty):
 
-    def update(self):
+    def __init__(self):
 
         aa_volumes = {'A': 88.6, 'R': 173.4, 'N': 114.1, 'D': 111.1, 'C': 108.5,
                       'Q': 143.8, 'E': 138.4, 'G': 60.1, 'H': 153.2, 'I': 166.7,
@@ -30,18 +30,32 @@ class AminoAcidVolumeChange(AminoAcidProperty):
             for j in aa_volumes.keys():
                 rows.append([i, j, aa_volumes[i] - aa_volumes[j]])
 
-        lookup = pandas.DataFrame(rows,columns=['ref_amino_acid', 'alt_amino_acid', 'd_volume'])
+        self.lookup = pandas.DataFrame(rows,columns=['ref_amino_acid', 'alt_amino_acid', 'd_volume'])
 
-        lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
+        self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
 
-        self.dataframe.set_index(['ref_amino_acid', 'alt_amino_acid'], inplace=True)
 
-        self.dataframe = self.dataframe.join(lookup)
+    def __add__(self, other):
 
-        print(self.dataframe)
+        assert isinstance(other, pandas.DataFrame)
 
-        self.dataframe.reset_index(inplace=True)
+        assert 'mutation' in other.columns, 'passed dataframe must contain a column called mutations'
 
-        self.dataframe.drop(columns = ['ref_amino_acid', 'alt_amino_acid'], inplace=True)
+        def find_amino_acids(row):
+            return(row.mutation[0], row.mutation[-1])
 
-        return(self.dataframe)
+        other[['ref_amino_acid','alt_amino_acid']] = other.apply(find_amino_acids,axis=1)
+
+        other.set_index(['ref_amino_acid', 'alt_amino_acid'], inplace=True)
+
+        other = other.join(self.lookup)
+
+        other.reset_index(inplace=True)
+
+        other.drop(columns = ['ref_amino_acid', 'alt_amino_acid'], inplace=True)
+
+        return(other)
+
+    def __radd__(self, other):
+
+        return self.__add__(other)
