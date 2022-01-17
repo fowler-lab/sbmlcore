@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 from .AminoAcidProperties import AminoAcidVolumeChange
+from .AminoAcidProperties import AminoAcidProperty
 
 '''
 Use of semantic versioning, MAJOR.MINOR.MAINTAINANCE where

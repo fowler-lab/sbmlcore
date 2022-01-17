@@ -1,11 +1,11 @@
-import smblcore
+import pandas
+import sbmlcore
 
 def test_amino_acid_volume_change():
 
-    a = {'MUTATIONS': ['A1D','E2K']}
+    a = {'mutation': ['A1D','E2K']}
     df = pandas.DataFrame.from_dict(a)
 
-    df = smblcore.AminoAcidVolumeChange(df)
-
-    assert ['d_volume'] in df.columns
-    
+    a = sbmlcore.AminoAcidVolumeChange(df)
+    df =  a.update()
+    assert 'd_volume' in df.columns
