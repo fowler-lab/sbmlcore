@@ -2,6 +2,15 @@ import pandas
 #TO CONSIDER: reducing duplication of code between properties?
 #Implementation of alternative hydropathy scales?
 #N.B. All property scales have been checked!
+
+def _make_table(data_dict):
+    rows = []
+    for i in data_dict.keys():
+        for j in data_dict.keys():
+            rows.append([i, j, data_dict[j] - data_dict[i]])
+    return pandas.DataFrame(rows, columns=['ref_amino_acid', 'alt_amino_acid', 'value'])
+
+
 class AminoAcidProperty(object):
     """Amino acid dataframe."""
 
@@ -18,30 +27,11 @@ class AminoAcidProperty(object):
 
         self.dataframe[['ref_amino_acid','alt_amino_acid']] = self.dataframe.apply(find_amino_acids,axis=1)
 
-
-class AminoAcidVolumeChange(AminoAcidProperty):
-    """Change in volume (ang^3) of an amino acid site due to a mutation."""
-
-    def __init__(self):
-
-        aa_volume = {'A': 88.6, 'R': 173.4, 'N': 114.1, 'D': 111.1, 'C': 108.5,
-                      'Q': 143.8, 'E': 138.4, 'G': 60.1, 'H': 153.2, 'I': 166.7,
-                      'L': 166.7, 'K': 168.6, 'M': 162.9, 'F': 189.9, 'P': 112.7,
-                      'S': 89.0, 'T': 116.1, 'W': 227.8, 'Y': 193.6, 'V': 140.0}
-
-        rows = []
-        for i in aa_volume.keys():
-            for j in aa_volume.keys():
-                rows.append([i, j, aa_volume[j] - aa_volume[i]])
-
-        self.lookup = pandas.DataFrame(rows,columns=['ref_amino_acid', 'alt_amino_acid', 'd_volume'])
-
-        self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
-
-
-    def __add__(self, other):
+    def add_data(self, other):
 
         assert isinstance(other, pandas.DataFrame)
+
+        assert self.lookup.columns[0] not in other.columns, 'trying to add a column that is already in the dataset!'
 
         assert 'mutation' in other.columns, 'passed dataframe must contain a column called mutations'
 
@@ -60,9 +50,22 @@ class AminoAcidVolumeChange(AminoAcidProperty):
 
         return(other)
 
-    def __radd__(self, other):
 
-        return self.__add__(other)
+class AminoAcidVolumeChange(AminoAcidProperty):
+    """Change in volume (ang^3) of an amino acid site due to a mutation."""
+
+    def __init__(self):
+
+        aa_volume = {'A': 88.6, 'R': 173.4, 'N': 114.1, 'D': 111.1, 'C': 108.5,
+                      'Q': 143.8, 'E': 138.4, 'G': 60.1, 'H': 153.2, 'I': 166.7,
+                      'L': 166.7, 'K': 168.6, 'M': 162.9, 'F': 189.9, 'P': 112.7,
+                      'S': 89.0, 'T': 116.1, 'W': 227.8, 'Y': 193.6, 'V': 140.0}
+
+        self.lookup = _make_table(aa_volume)
+        self.lookup.rename(columns = {'value': 'd_volume'}, inplace=True)
+        self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
+
+
 
 class AminoAcidMWChange(AminoAcidProperty):
     """Change in molecular weight (g/mol) of an amino acid site due to a mutation.
@@ -77,20 +80,15 @@ class AminoAcidMWChange(AminoAcidProperty):
                  'L': 131.2, 'K': 146.2, 'M': 149.2, 'F': 165.2, 'P': 115.1,
                  'S': 105.1, 'T': 119.1, 'W': 204.2, 'Y': 181.2, 'V': 117.1}
 
-        rows = []
-        for i in aa_MW.keys():
-            for j in aa_MW.keys():
-                rows.append([i, j, aa_MW[i] - aa_MW[j]])
-
-        self.lookup = pandas.DataFrame(rows,columns=['ref_amino_acid', 'alt_amino_acid', 'd_MW'])
-
+        self.lookup = _make_table(aa_MW)
+        self.lookup.rename(columns = {'value': 'd_MW'}, inplace=True)
         self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
 
-class AminoAcidHydropathyChange(AminoAcidProperty):
+class AminoAcidHydropathyChangeKyteDoolittle(AminoAcidProperty):
     """Change in hydropathy of an amino acid site due to a mutation.
 
     Different hydropathy/hydrophobicity scales can be used.
-    Options: Kyte and Doolittle (1982) DOI 10.1016/0022-2836(82)90515-0; Whimley White (1996) DOI 10.1038/nsb1096-842, octanol-interface scale from https://blanco.biomol.uci.edu/hydrophobicity_scales.html, Asp- Glu- His+ used.
+    Kyte and Doolittle (1982) DOI 10.1016/0022-2836(82)90515-0;
     """
 
     def __init__(self):
@@ -101,20 +99,29 @@ class AminoAcidHydropathyChange(AminoAcidProperty):
                             'M': 1.9, 'F': 2.8, 'P': -1.6, 'S': -0.8,
                             'T': -0.7, 'W': -0.9, 'Y': -1.3, 'V': 4.2}
 
+        self.lookup = _make_table(aa_hydropathy_KD)
+        self.lookup.rename(columns = {'value': 'aa_hydropathy_KD'}, inplace=True)
+        self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
+
+class AminoAcidHydropathyChangeWimleyWhite(AminoAcidProperty):
+    """Change in hydropathy of an amino acid site due to a mutation.
+
+    Different hydropathy/hydrophobicity scales can be used.
+    Whimley White (1996) DOI 10.1038/nsb1096-842, octanol-interface scale from https://blanco.biomol.uci.edu/hydrophobicity_scales.html, Asp- Glu- His+ used.
+    """
+
+    def __init__(self):
+
         aa_hydropathy_WW = {'A': 0.33, 'R': 1.00, 'N': 0.43, 'D': 2.41,
                             'C': 0.22, 'Q': 0.19, 'E': 1.61, 'G': 1.14,
                             'H': 1.37, 'I': -0.81, 'L': -0.69, 'K': 1.81,
                             'M': -0.44, 'F': -0.58, 'P': -0.31, 'S': 0.33,
                             'T': 0.11, 'W': -0.24, 'Y': 0.23, 'V': -0.53}
 
-        rows = []
-        for i in aa_hydropathy_KD.keys():
-            for j in aa_hydropathy_KD.keys():
-                rows.append([i, j, aa_hydropathy_KD[i] - aa_hydropathy_KD[j]])
-
-        self.lookup = pandas.DataFrame(rows,columns=['ref_amino_acid', 'alt_amino_acid', 'd_hydropathy_KD'])
-
+        self.lookup = _make_table(aa_hydropathy_WW)
+        self.lookup.rename(columns = {'value': 'aa_hydropathy_WW'}, inplace=True)
         self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
+
 
 class AminoAcidPiChange(AminoAcidProperty):
     """Change in isoelectric point of an amino acid site due to a mutation.
@@ -129,11 +136,6 @@ class AminoAcidPiChange(AminoAcidProperty):
              'M': 5.74, 'F': 5.48, 'P': 6.30, 'S': 5.68, 'T': 5.60, 'W': 5.89,
              'Y': 5.66, 'V': 5.96}
 
-        rows = []
-        for i in aa_Pi.keys():
-            for j in aa_Pi.keys():
-                rows.append([i, j, aa_Pi[i] - aa_Pi[j]])
-
-        self.lookup = pandas.DataFrame(rows,columns=['ref_amino_acid', 'alt_amino_acid', 'd_Pi'])
-
+        self.lookup = _make_table(aa_Pi)
+        self.lookup.rename(columns = {'value': 'd_Pi'}, inplace=True)
         self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
