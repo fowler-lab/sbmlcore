@@ -32,7 +32,7 @@ class AminoAcidVolumeChange(AminoAcidProperty):
         rows = []
         for i in aa_volume.keys():
             for j in aa_volume.keys():
-                rows.append([i, j, aa_volume[i] - aa_volume[j]])
+                rows.append([i, j, aa_volume[j] - aa_volume[i]])
 
         self.lookup = pandas.DataFrame(rows,columns=['ref_amino_acid', 'alt_amino_acid', 'd_volume'])
 

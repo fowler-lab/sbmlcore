@@ -21,8 +21,14 @@ def test_amino_acid_volume_change_value():
     df2 = a + df
     assert 'd_volume' in df2.columns
 
-    assert df2.d_volume.values == pytest.approx(numpy.array([-22.5, -30.2]))
+    assert df2.d_volume.values == pytest.approx(numpy.array([22.5, 30.2]))
 
-    # this should fail!
+    # these should all fail!
     with pytest.raises(AssertionError):
-        assert df2.d_volume.values == pytest.approx(numpy.array([22.5, 30.2]))
+        assert df2.d_volume.values == pytest.approx(numpy.array([-22.5, -30.2]))
+
+    with pytest.raises(AssertionError):
+        assert df2.d_volume.values == pytest.approx(numpy.array([22.5, -30.2]))
+
+    with pytest.raises(AssertionError):
+        assert df2.d_volume.values == pytest.approx(numpy.array([22.5, '30.2']))
