@@ -1,7 +1,7 @@
 import pandas
 #TO CONSIDER: reducing duplication of code between properties?
 #Implementation of alternative hydropathy scales?
-#N.B. All property scales have been checked! 
+#N.B. All property scales have been checked!
 class AminoAcidProperty(object):
     """Amino acid dataframe."""
 
@@ -46,7 +46,7 @@ class AminoAcidVolumeChange(AminoAcidProperty):
         assert 'mutation' in other.columns, 'passed dataframe must contain a column called mutations'
 
         def find_amino_acids(row):
-            return(row.mutation[0], row.mutation[-1])
+            return(pandas.Series([row.mutation[0], row.mutation[-1]]))
 
         other[['ref_amino_acid','alt_amino_acid']] = other.apply(find_amino_acids,axis=1)
 

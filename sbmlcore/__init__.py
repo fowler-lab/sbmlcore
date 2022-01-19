@@ -7,8 +7,8 @@ class sbmlcore:
     def __init__(self):
         self.sbmlcore = sbmlcore
 
-from AminoAcidProperties import AminoAcidProperty
-from AminoAcidProperties import AminoAcidVolumeChange
+from .AminoAcidProperties import AminoAcidProperty
+from .AminoAcidProperties import AminoAcidVolumeChange
 
 '''
 Use of semantic versioning, MAJOR.MINOR.MAINTAINANCE where
