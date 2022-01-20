@@ -11,4 +11,4 @@ Use of semantic versioning, MAJOR.MINOR.MAINTAINANCE where
 MAJOR is not backwards compatible, but MINOR and MAINTAINANCE are
 '''
 __version__ = "0.0.1"
-__author__ = 'Philip W Fowler and Charlotte Lynch'
+__author__ = 'Philip W Fowler and Charlotte I Lynch'
