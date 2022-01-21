@@ -23,21 +23,14 @@ jobs:
     - name: Install dssp
       run: |
         sudo apt-get install libboost-all-dev
-        git clone https://github.com/PDB-REDO/libcifpp.git
-        cd libcifpp/
-        mkdir build
-        cd build
-        cmake ..
-        cmake --build . --config Release
-        cmake --install .
-        cd ../..
-        git clone https://github.com/PDB-REDO/dssp.git
-        cd dssp
-        mkdir build
-        cd build
-        cmake ..
-        cmake --build . --config Release
-        cmake --install .
+        wget https://github.com/cmbi/dssp/archive/refs/tags/2.3.0.zip
+        mv 2.3.0.zip dssp-2.3.0.zip
+        unzip dssp-2.3.0.zip
+        cd dssp-2.3.0
+        ./autogen.sh
+        ./configure
+        make mkdssp
+        cp mkdssp ..
 
     - name: Install stride
       run: |

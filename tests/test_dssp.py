@@ -21,7 +21,30 @@ def test_stride_ok(tmp_path):
         stderr=subprocess.PIPE,
     )
 
-    stdout, stderr = process.communicate()
+    process.wait()
+
+    # insist that the above command did not fail
+    assert process.returncode == 0
+
+def test_dssp_ok(tmp_path):
+
+    if pathlib.Path("./mkdssp").exists():
+        mkdssp = pathlib.Path("./mkdssp").resolve()
+
+    # or if there is one in the $PATH use that one
+    elif shutil.which('mkdssp') is not None:
+         mkdssp = pathlib.Path(shutil.which('mkdssp'))
+
+    process = subprocess.Popen(
+        [
+            mkdssp,
+            'tests/3pl1.pdb'
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    process.wait()
 
     # insist that the above command did not fail
     assert process.returncode == 0
