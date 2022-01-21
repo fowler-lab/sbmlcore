@@ -42,15 +42,14 @@ jobs:
     - name: Install stride
       run: |
         wget http://webclu.bio.wzw.tum.de/stride/stride.tar.gz
-        mkdir stride
-        mv stride.tar.gz stride/
-        cd stride
+        mkdir stride-src
+        mv stride.tar.gz stride-src/
+        cd stride-src
         tar zxvf stride.tar.gz
         make
         cp stride ..
         cd ..
 
-      
     - name: Install Python dependencies
       run: |
         pip3 install -r requirements.txt

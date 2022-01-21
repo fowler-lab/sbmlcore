@@ -1,47 +1,27 @@
 # Tests for the '.AminoAcidHydropathyChange' defs for different hydropathy scales
-import pandas
-import numpy
-import pytest
-import sbmlcore
+import pathlib
+import shutil
+import subprocess
 
-def test_amino_acid_hydropathy_KD_change_value():
+def test_stride_ok(tmp_path):
 
-    a = {'mutation': ['A1D', 'E2K']}
-    df = pandas.DataFrame(a)
+    if pathlib.Path("./stride").exists():
+        stride = pathlib.Path("./stride").resolve()
 
-    a = sbmlcore.AminoAcidHydropathyChangeKyteDoolittle()
-    df =  a.add_data(df)
-    assert 'd_hydropathy_KD' in df.columns
+    # or if there is one in the $PATH use that one
+    elif shutil.which('stride') is not None:
+         stride = pathlib.Path(shutil.which('stride'))
 
-    assert df.d_hydropathy_KD.values == pytest.approx(numpy.array([-5.3, -0.4]))
+    process = subprocess.Popen(
+        [
+            stride,
+            'tests/3pl1.pdb'
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
 
-    # these should all fail!
-    with pytest.raises(AssertionError):
-        assert df.d_hydropathy_KD.values == pytest.approx(numpy.array([5.3, 0.4]))
+    stdout, stderr = process.communicate()
 
-    with pytest.raises(AssertionError):
-        assert df.d_hydropathy_KD.values == pytest.approx(numpy.array([5.3, -0.4]))
-
-    with pytest.raises(AssertionError):
-        assert df.d_hydropathy_KD.values == pytest.approx(numpy.array([-5.3, '-0.4']))
-
-def test_amino_acid_hydropathy_WW_change_value():
-
-    a = {'mutation': ['A1D', 'E2K']}
-    df = pandas.DataFrame(a)
-
-    a = sbmlcore.AminoAcidHydropathyChangeWimleyWhite()
-    df =  a.add_data(df)
-    assert 'd_hydropathy_WW' in df.columns
-
-    assert df.d_hydropathy_WW.values == pytest.approx(numpy.array([2.08, 0.20]))
-
-    # these should all fail!
-    with pytest.raises(AssertionError):
-        assert df.d_hydropathy_WW.values == pytest.approx(numpy.array([-2.08, -0.20]))
-
-    with pytest.raises(AssertionError):
-        assert df.d_hydropathy_WW.values == pytest.approx(numpy.array([2.08, -0.20]))
-
-    with pytest.raises(AssertionError):
-        assert df.d_hydropathy_WW.values == pytest.approx(numpy.array([2.08, '0.20']))
+    # insist that the above command did not fail
+    assert process.returncode == 0
