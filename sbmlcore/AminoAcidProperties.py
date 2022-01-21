@@ -1,7 +1,5 @@
 import pandas
-#TO CONSIDER: reducing duplication of code between properties?
-#Implementation of alternative hydropathy scales?
-#N.B. All property scales have been checked!
+#N.B. All property scales have been checked! CIL
 
 def _make_table(data_dict):
     rows = []
@@ -100,14 +98,14 @@ class AminoAcidHydropathyChangeKyteDoolittle(AminoAcidProperty):
                             'T': -0.7, 'W': -0.9, 'Y': -1.3, 'V': 4.2}
 
         self.lookup = _make_table(aa_hydropathy_KD)
-        self.lookup.rename(columns = {'value': 'aa_hydropathy_KD'}, inplace=True)
+        self.lookup.rename(columns = {'value': 'd_hydropathy_KD'}, inplace=True)
         self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
 
 class AminoAcidHydropathyChangeWimleyWhite(AminoAcidProperty):
     """Change in hydropathy of an amino acid site due to a mutation.
 
     Different hydropathy/hydrophobicity scales can be used.
-    Whimley White (1996) DOI 10.1038/nsb1096-842, octanol-interface scale from https://blanco.biomol.uci.edu/hydrophobicity_scales.html, Asp- Glu- His+ used.
+    Wimley White (1996) DOI 10.1038/nsb1096-842, octanol-interface scale from https://blanco.biomol.uci.edu/hydrophobicity_scales.html, Asp- Glu- His+ used.
     """
 
     def __init__(self):
@@ -119,7 +117,7 @@ class AminoAcidHydropathyChangeWimleyWhite(AminoAcidProperty):
                             'T': 0.11, 'W': -0.24, 'Y': 0.23, 'V': -0.53}
 
         self.lookup = _make_table(aa_hydropathy_WW)
-        self.lookup.rename(columns = {'value': 'aa_hydropathy_WW'}, inplace=True)
+        self.lookup.rename(columns = {'value': 'd_hydropathy_WW'}, inplace=True)
         self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
 
 
