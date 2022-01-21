@@ -31,6 +31,13 @@ jobs:
         cmake --build . --config Release
         cmake --install .
         cd ../..
+        git clone https://github.com/PDB-REDO/dssp.git
+        cd dssp
+        mkdir build
+        cd build
+        cmake ..
+        cmake --build . --config Release
+        cmake --install .
         
     - name: Install Python dependencies
       run: |
