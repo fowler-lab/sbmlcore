@@ -23,7 +23,15 @@ jobs:
     - name: Install dssp
       run: |
         sudo apt-get install libboost-all-dev
-
+        git clone https://github.com/PDB-REDO/libcifpp.git
+        cd libcifpp/
+        mkdir build
+        cd build
+        cmake ..
+        cmake --build . --config Release
+        cmake --install .
+        cd ../..
+        
     - name: Install Python dependencies
       run: |
         pip3 install -r requirements.txt
