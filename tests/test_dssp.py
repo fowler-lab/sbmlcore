@@ -1,4 +1,4 @@
-# Tests for the '.AminoAcidHydropathyChange' defs for different hydropathy scales
+# Tests for DSSP secondary structure code
 import pathlib
 import shutil
 import subprocess
