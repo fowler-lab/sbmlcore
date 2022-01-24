@@ -64,24 +64,6 @@ class AminoAcidVolumeChange(AminoAcidProperty):
         self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
 
 
-
-class AminoAcidMWChange(AminoAcidProperty):
-    """Change in molecular weight (g/mol) of an amino acid site due to a mutation.
-
-    From: https://www.thermofisher.com/uk/en/home/references/ambion-tech-support/rna-tools-and-calculators/proteins-and-amino-acids.html
-    """
-
-    def __init__(self):
-
-        aa_MW = {'A': 89.1, 'R': 174.2, 'N': 132.1, 'D': 133.1, 'C': 121.2,
-                 'E': 147.1, 'Q': 146.2, 'G':75.1, 'H': 155.2, 'I': 131.2,
-                 'L': 131.2, 'K': 146.2, 'M': 149.2, 'F': 165.2, 'P': 115.1,
-                 'S': 105.1, 'T': 119.1, 'W': 204.2, 'Y': 181.2, 'V': 117.1}
-
-        self.lookup = _make_table(aa_MW)
-        self.lookup.rename(columns = {'value': 'd_MW'}, inplace=True)
-        self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
-
 class AminoAcidHydropathyChangeKyteDoolittle(AminoAcidProperty):
     """Change in hydropathy of an amino acid site due to a mutation.
 
@@ -101,6 +83,7 @@ class AminoAcidHydropathyChangeKyteDoolittle(AminoAcidProperty):
         self.lookup.rename(columns = {'value': 'd_hydropathy_KD'}, inplace=True)
         self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
 
+
 class AminoAcidHydropathyChangeWimleyWhite(AminoAcidProperty):
     """Change in hydropathy of an amino acid site due to a mutation.
 
@@ -118,6 +101,24 @@ class AminoAcidHydropathyChangeWimleyWhite(AminoAcidProperty):
 
         self.lookup = _make_table(aa_hydropathy_WW)
         self.lookup.rename(columns = {'value': 'd_hydropathy_WW'}, inplace=True)
+        self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
+
+
+class AminoAcidMWChange(AminoAcidProperty):
+    """Change in molecular weight (g/mol) of an amino acid site due to a mutation.
+
+    From: https://www.thermofisher.com/uk/en/home/references/ambion-tech-support/rna-tools-and-calculators/proteins-and-amino-acids.html
+    """
+
+    def __init__(self):
+
+        aa_MW = {'A': 89.1, 'R': 174.2, 'N': 132.1, 'D': 133.1, 'C': 121.2,
+                 'E': 147.1, 'Q': 146.2, 'G':75.1, 'H': 155.2, 'I': 131.2,
+                 'L': 131.2, 'K': 146.2, 'M': 149.2, 'F': 165.2, 'P': 115.1,
+                 'S': 105.1, 'T': 119.1, 'W': 204.2, 'Y': 181.2, 'V': 117.1}
+
+        self.lookup = _make_table(aa_MW)
+        self.lookup.rename(columns = {'value': 'd_MW'}, inplace=True)
         self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'],inplace=True)
 
 

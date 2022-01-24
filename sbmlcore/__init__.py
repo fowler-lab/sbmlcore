@@ -5,6 +5,8 @@ from .AminoAcidProperties import AminoAcidProperty
 from .AminoAcidProperties import AminoAcidVolumeChange
 from .AminoAcidProperties import AminoAcidHydropathyChangeKyteDoolittle
 from .AminoAcidProperties import AminoAcidHydropathyChangeWimleyWhite
+from .AminoAcidProperties import AminoAcidMWChange
+from .AminoAcidProperties import AminoAcidPiChange
 
 '''
 Use of semantic versioning, MAJOR.MINOR.MAINTAINANCE where
