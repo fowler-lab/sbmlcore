@@ -22,6 +22,27 @@ def wrap_angle(angle):
         angle -= 360;
     return(angle)
 
+# class StrideProperty(object):
+#
+#     def __init__(self, strideobject, dataframe):
+#
+#         assert isinstance(dataframe, pandas.DataFrame)
+#         assert isinstance(strideobject, Stride)
+#
+#         self.dataframe = dataframe
+#
+#         assert 'mutation' in self.dataframe.columns, 'passed dataframe must contain a column called mutations'
+#
+#         def find_amino_acids(row):
+#             return(row.mutation[0], row.mutation[-1])
+#
+#         self.dataframe[['ref_amino_acid','alt_amino_acid']] = self.dataframe.apply(find_amino_acids,axis=1)
+#
+#     def add_data(self, other, column=None):
+#
+#
+
+
 class Stride(object):
 
     def __init__(self, PDBFile):
@@ -37,7 +58,7 @@ class Stride(object):
         elif shutil.which('stride') is not None:
              stride = pathlib.Path(shutil.which('stride'))
 
-        output = subprocess.getoutput(str(stride)+' tests/3pl1.pdb')
+        output = subprocess.getoutput(str(stride)+' ' + self.pdb_file)
 
         rows=[]
         for line in output.split('\n'):
