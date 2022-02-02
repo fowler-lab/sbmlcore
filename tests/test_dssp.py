@@ -26,6 +26,8 @@ def test_stride_ok(tmp_path):
     # insist that the above command did not fail
     assert process.returncode == 0
 
+
+
 def test_dssp_ok(tmp_path):
 
     if pathlib.Path("./mkdssp").exists():
