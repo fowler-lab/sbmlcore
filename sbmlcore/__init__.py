@@ -8,6 +8,8 @@ from .AminoAcidProperties import AminoAcidHydropathyChangeWimleyWhite
 from .AminoAcidProperties import AminoAcidMWChange
 from .AminoAcidProperties import AminoAcidPiChange
 
+from .ExternalCode import Stride
+
 '''
 Use of semantic versioning, MAJOR.MINOR.MAINTAINANCE where
 MAJOR is not backwards compatible, but MINOR and MAINTAINANCE are
