@@ -1,5 +1,7 @@
 import pytest
 
+import pandas
+
 import sbmlcore
 
 
@@ -18,3 +20,21 @@ def test_stride():
     # these should all fail!
     with pytest.raises(AssertionError):
         a = sbmlcore.Stride('tests/3pl2.pdb')
+
+    b = {'segid': ['A', 'A', 'A'], 'mutation': ['M1D','R2K', 'A3V']}
+    df = pandas.DataFrame.from_dict(b)
+
+    # test out individual features
+    df = a.add_feature(df, 'psi')
+    assert 'psi' in df.columns
+
+    df = a.add_feature(df, 'phi')
+    assert 'phi' in df.columns
+
+    b = {'segid': ['A', 'A', 'A'], 'mutation': ['M1D','R2K', 'A3V']}
+    df = pandas.DataFrame.from_dict(b)
+
+    # test adding all
+    df = a.add_feature(df)
+    assert 'psi' in df.columns
+    assert 'phi' in df.columns
