@@ -10,7 +10,7 @@ def test_amino_acid_Pi_change_value():
     df = pandas.DataFrame(a)
 
     a = sbmlcore.AminoAcidPiChange()
-    df =  a.add_data(df)
+    df =  a.add_feature(df)
     assert 'd_Pi' in df.columns
 
     assert df.d_Pi.values == pytest.approx(numpy.array([-3.23, 6.52]))

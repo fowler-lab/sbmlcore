@@ -25,7 +25,7 @@ class AminoAcidProperty(object):
 
         self.dataframe[['ref_amino_acid','alt_amino_acid']] = self.dataframe.apply(find_amino_acids,axis=1)
 
-    def add_data(self, other):
+    def add_feature(self, other):
 
         assert isinstance(other, pandas.DataFrame)
 

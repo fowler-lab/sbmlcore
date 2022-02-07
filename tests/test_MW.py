@@ -10,7 +10,7 @@ def test_amino_acid_MW_change_value():
     df = pandas.DataFrame(a)
 
     a = sbmlcore.AminoAcidMWChange()
-    df =  a.add_data(df)
+    df =  a.add_feature(df)
     assert 'd_MW' in df.columns
 
     assert df.d_MW.values == pytest.approx(numpy.array([44.0, -0.9]))

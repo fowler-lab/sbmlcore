@@ -10,7 +10,7 @@ def test_amino_acid_volume_change_value():
     df = pandas.DataFrame.from_dict(a)
 
     a = sbmlcore.AminoAcidVolumeChange()
-    df =  a.add_data(df)
+    df =  a.add_feature(df)
     assert 'd_volume' in df.columns
 
     assert df.d_volume.values == pytest.approx(numpy.array([22.5, 30.2]))
