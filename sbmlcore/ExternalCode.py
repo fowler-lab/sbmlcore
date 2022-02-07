@@ -9,7 +9,6 @@ import pandas
 #
 #     def __init__(self, PBBFile):
 #
-#
 
 amino_acid_3to1letter = {'CYS': 'C', 'ASP': 'D', 'SER': 'S', 'GLN': 'Q', 'LYS': 'K',
      'ILE': 'I', 'PRO': 'P', 'THR': 'T', 'PHE': 'F', 'ASN': 'N',
@@ -21,26 +20,6 @@ def wrap_angle(angle):
     if angle > 180:
         angle -= 360;
     return(angle)
-
-# class StrideProperty(object):
-#
-#     def __init__(self, strideobject, dataframe):
-#
-#         assert isinstance(dataframe, pandas.DataFrame)
-#         assert isinstance(strideobject, Stride)
-#
-#         self.dataframe = dataframe
-#
-#         assert 'mutation' in self.dataframe.columns, 'passed dataframe must contain a column called mutations'
-#
-#         def find_amino_acids(row):
-#             return(row.mutation[0], row.mutation[-1])
-#
-#         self.dataframe[['ref_amino_acid','alt_amino_acid']] = self.dataframe.apply(find_amino_acids,axis=1)
-#
-#     def add_feature(self, other, column=None):
-#
-#
 
 
 class Stride(object):
@@ -87,3 +66,36 @@ class Stride(object):
         self.results = self.results[['resid', 'amino_acid', 'resname', 'segid',
                                      'secondary_structure', 'secondary_structure_long',
                                      'phi', 'psi', 'residue_sasa']]
+
+    def add_feature(self, other, feature_name='all'):
+
+        assert isinstance(other, pandas.DataFrame)
+
+        assert 'mutation' in other.columns, 'passed dataframe must contain a column called mutations'
+
+        assert 'segid' in other.columns, 'passed dataframe must contain a column called segid containing chain information e.g. A'
+
+        assert feature_name not in other.columns, 'trying to add a column that is already in the dataset!'
+
+        if feature_name != 'all':
+            assert feature_name in self.results.columns, 'supplied feature_name not supplied by STRIDE'
+
+        def split_mutation(row):
+            return pandas.Series([row.mutation[0], int(row.mutation[1:-1])])
+
+        other[['amino_acid', 'resid']] = other.apply(split_mutation, axis=1)
+
+        other.set_index(['segid', 'amino_acid', 'resid'], inplace=True)
+        self.results.set_index(['segid', 'amino_acid', 'resid'], inplace=True)
+
+        if feature_name == 'all':
+            other = other.join(self.results, how='left')
+        else:
+            other = other.join(self.results[[feature_name]], how='left')
+
+        other.reset_index(inplace=True)
+        self.results.reset_index(inplace=True)
+
+        other.drop(columns = ['amino_acid', 'resid'], inplace=True)
+
+        return(other)

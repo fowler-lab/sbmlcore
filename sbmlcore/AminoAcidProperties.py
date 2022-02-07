@@ -12,18 +12,19 @@ def _make_table(data_dict):
 class AminoAcidProperty(object):
     """Amino acid dataframe."""
 
-    def __init__(self, dataframe):
+    def __init__(self):
 
-        assert isinstance(dataframe, pandas.DataFrame)
-
-        self.dataframe = dataframe
-
-        assert 'mutation' in self.dataframe.columns, 'passed dataframe must contain a column called mutations'
-
-        def find_amino_acids(row):
-            return(row.mutation[0], row.mutation[-1])
-
-        self.dataframe[['ref_amino_acid','alt_amino_acid']] = self.dataframe.apply(find_amino_acids,axis=1)
+        pass
+        # assert isinstance(dataframe, pandas.DataFrame)
+        #
+        # self.dataframe = dataframe
+        #
+        # assert 'mutation' in self.dataframe.columns, 'passed dataframe must contain a column called mutations'
+        #
+        # def find_amino_acids(row):
+        #     return(row.mutation[0], row.mutation[-1])
+        #
+        # self.dataframe[['ref_amino_acid','alt_amino_acid']] = self.dataframe.apply(find_amino_acids,axis=1)
 
     def add_feature(self, other):
 
@@ -40,7 +41,7 @@ class AminoAcidProperty(object):
 
         other.set_index(['ref_amino_acid', 'alt_amino_acid'], inplace=True)
 
-        other = other.join(self.lookup)
+        other = other.join(self.lookup, how='left')
 
         other.reset_index(inplace=True)
 
