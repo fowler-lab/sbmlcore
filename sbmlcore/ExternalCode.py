@@ -67,6 +67,9 @@ class Stride(object):
                                      'secondary_structure', 'secondary_structure_long',
                                      'phi', 'psi', 'residue_sasa']]
 
+        tmp = pandas.get_dummies(self.results.secondary_structure)
+        self.results = self.results.join(tmp, how='left')
+
     def add_feature(self, other, feature_name='all'):
 
         assert isinstance(other, pandas.DataFrame)
