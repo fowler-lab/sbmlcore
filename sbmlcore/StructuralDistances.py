@@ -14,17 +14,22 @@ class StructuralDistances(object):
         assert pathlib.Path(pdb_file).is_file()
 
         u = MDAnalysis.Universe(pdb_file)
+        print(set(u.residues.segids))
 
         assert isinstance(distance_selection, str)
 
         reference_com = u.select_atoms(distance_selection).center_of_mass()
+        assert u.select_atoms(distance_selection).n_atoms > 0, "Atom selection is not correct!"
 
         # apply any offsets to the residue numbering
         # as specified in the supplied offsets dict e.g. {'A': 3, 'B': -4}
         if offsets is not None:
+            assert isinstance(offsets, dict)
             for chain in offsets:
-                chainGroup = u.selectAtoms('segid ' + chain)
-                chainGroup.residues.resid = chainGroup.residues.resid + offsets[chain]
+                assert chain in set(u.residues.segids), "Need to specify a segid that exists in pdb!"
+                assert isinstance(offsets[chain], int)
+                chainGroup = u.select_atoms('segid ' + chain)
+                chainGroup.residues.resids = chainGroup.residues.resids + offsets[chain]
 
         Ca_all = u.select_atoms("name CA")
 
