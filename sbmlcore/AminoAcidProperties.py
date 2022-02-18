@@ -32,7 +32,7 @@ class AminoAcidProperty(object):
 
         assert self.lookup.columns[0] not in other.columns, 'trying to add a column that is already in the dataset!'
 
-        assert 'mutation' in other.columns, 'passed dataframe must contain a column called mutations'
+        assert 'mutation' in other.columns, 'passed dataframe must contain a column called mutation'
 
         def find_amino_acids(row):
             return(pandas.Series([row.mutation[0], row.mutation[-1]]))
