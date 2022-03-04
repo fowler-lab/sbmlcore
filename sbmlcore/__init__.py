@@ -9,6 +9,7 @@ from .AminoAcidProperties import AminoAcidMWChange
 from .AminoAcidProperties import AminoAcidPiChange
 
 from .ExternalCode import Stride
+from .ExternalCode import FreeSASA
 from .StructuralDistances import StructuralDistances
 
 '''

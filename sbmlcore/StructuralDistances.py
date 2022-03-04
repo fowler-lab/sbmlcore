@@ -73,7 +73,8 @@ class StructuralDistances(object):
 
         other = other.join(self.results, how='left')
         #print(self.distance_name)
-        #assert isinstance(other[distance_name], float), "Offset has been incorrectly specified such that they do not align with initial mutation resids!"
+        #print(other)
+        assert isinstance(other[self.distance_name], float), "Offset has been incorrectly specified such that they do not align with initial mutation resids!"
         #Want to check that all the distance entries in the newly added distances column are all floats - i.e. there are no NaNs (or weird things like ints or strings)
 
         other.reset_index(inplace=True)

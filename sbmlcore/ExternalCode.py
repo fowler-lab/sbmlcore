@@ -3,6 +3,7 @@ import shutil
 import subprocess
 
 import pandas
+import freesasa
 # unsure whether to try and do a base class
 
 # class ExternalCode(object):
@@ -36,6 +37,9 @@ class Stride(object):
         # or if there is one in the $PATH use that one
         elif shutil.which('stride') is not None:
              stride = pathlib.Path(shutil.which('stride'))
+
+        else:
+            raise IOError("No stride installed!")
 
         output = subprocess.getoutput(str(stride)+' ' + self.pdb_file)
 
@@ -74,7 +78,7 @@ class Stride(object):
 
         assert isinstance(other, pandas.DataFrame)
 
-        assert 'mutation' in other.columns, 'passed dataframe must contain a column called mutations'
+        assert 'mutation' in other.columns, 'passed dataframe must contain a column called mutation'
 
         assert 'segid' in other.columns, 'passed dataframe must contain a column called segid containing chain information e.g. A'
 
@@ -102,3 +106,28 @@ class Stride(object):
         other.drop(columns = ['amino_acid', 'resid'], inplace=True)
 
         return(other)
+
+
+class FreeSASA(object):
+
+    def __init__(self, PDBFile):
+
+        if not pathlib.Path(PDBFile).is_file():
+            raise IOError("Specified PDB file does not exist!")
+
+        self.pdb_file = PDBFile
+
+        structure = freesasa.Structure(PDBFile)
+        values = freesasa.calc(structure)
+        area_classes = freesasa.classifyResults(values, structure)
+
+#        print("Total : %.2f A2" % values.totalArea())
+#        for key in area_classes:
+#            print(key, ": %.2f A2" % area_classes[key])
+
+
+
+#        self.results = pandas.DataFrame(rows, columns=['resname', 'segid', 'resid',\
+#                                                       'ordinal_resid', 'secondary_structure',\
+#                                                       'secondary_structure_long', 'phi', 'psi',\
+#                                                       'residue_sasa', 'pdb_code'])
