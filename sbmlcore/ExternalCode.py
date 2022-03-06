@@ -109,6 +109,8 @@ class Stride(object):
 
 
 class FreeSASA(object):
+#N.B. So far the add_feature includes calculating the SASA as this is dependent on the original df of mutations
+# Try to change it around so consistent with StructuralDistances?
 
     def __init__(self, PDBFile):
 
@@ -117,16 +119,46 @@ class FreeSASA(object):
 
         self.pdb_file = PDBFile
 
-        structure = freesasa.Structure(PDBFile)
-        values = freesasa.calc(structure)
-        area_classes = freesasa.classifyResults(values, structure)
+#        structure = freesasa.Structure(self.pdb_file)
+#        values = freesasa.calc(structure)
+#        area_classes = freesasa.classifyResults(values, structure)
 
 #        print("Total : %.2f A2" % values.totalArea())
 #        for key in area_classes:
 #            print(key, ": %.2f A2" % area_classes[key])
 
+    def add_feature(self, other):
 
+        assert isinstance(other, pandas.DataFrame), "You must be adding the extra feature to an existing dataframe!"
 
+        assert 'mutation' in other.columns, "Passed dataframe must contain a column called mutation"
+
+        assert 'segid' in other.columns, "Passed dataframe must contain a column called segid containing chain information e.g. A"
+
+    #Split mutation df to create new index in form of segid-resid from mutation
+        def split_mutation(row):
+            m=row.mutation
+            return(int(m[1:-1]))
+
+        other['resid'] = other.apply(split_mutation, axis=1)
+        other['id'] = other['segid'] + other['resid'].astype(str)
+        other.set_index('id', inplace=True)
+
+        #Creates correct text input for FreeSASA
+        sele_text = ["%s%i, resi %i and chain %s" % (j,i,i,j) for i,j in zip(other.resid, other.segid)]
+
+        #Obtain SASAs for each residue
+        structure = freesasa.Structure(self.pdb_file)
+        values = freesasa.calc(structure)
+        results = freesasa.selectArea(sele_text, structure, values)
+        s = pandas.Series(results)
+        b = pandas.DataFrame(s, columns=['surface_area'])
+        #print(b)
+        
+        #Join SASA df to original mutation df
+        other = other.join(b, how='left')
+
+        return(other)
 #        self.results = pandas.DataFrame(rows, columns=['resname', 'segid', 'resid',\
 #                                                       'ordinal_resid', 'secondary_structure',\
 #                                                       'secondary_structure_long', 'phi', 'psi',\
