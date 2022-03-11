@@ -8,6 +8,21 @@ amino_acid_3to1letter = {'CYS': 'C', 'ASP': 'D', 'SER': 'S', 'GLN': 'Q', 'LYS': 
      'ALA': 'A', 'VAL':'V', 'GLU': 'E', 'TYR': 'Y', 'MET': 'M'}
 
 class StructuralDistances(object):
+    """
+    Class for structural distances
+
+    Takes 4 arguments:
+    1st - path to pdb file
+    2nd - group of atoms you want to calculate the distances to - uses MDAnalysis syntax, and distances are calculated from the centre of mass of this whole selection to each Ca in the Structure
+    3rd - your choice of name for the resulting distance column in the dataframe
+    4th - resid offsets for the different chains - must be a dictionary in the form {'segid': int, ...}.
+
+    E.g. a = sbmlcore.StructuralDistances('tests/5uh6.pdb','resname ZN', 'Zn_distance', offsets = {'A': 0, 'B': 0, 'C': -6})
+
+    Functions:
+
+    add_feature - adds distances to existing mutation dataframe, and returns new joined dataframe
+    """
 
     def __init__(self, pdb_file, distance_selection, distance_name, offsets=None):
 
@@ -52,6 +67,12 @@ class StructuralDistances(object):
 
 
     def add_feature(self, other):
+        """
+        Adds distances to existing mutation dataframe, and returns new joined dataframe.
+        Arguments: existing dataframe
+        e.g. if a = sbmlcore.StructuralDistances(...),
+        use new_df = a.add_feature(existing_df)
+        """
 
         assert isinstance(other, pandas.DataFrame), "You must be adding the extra feature to an existing dataframe!"
 
@@ -72,10 +93,28 @@ class StructuralDistances(object):
         self.results.set_index(['segid', 'resid', 'amino_acid'], inplace=True)
 
         other = other.join(self.results, how='left')
-        #print(self.distance_name)
-        #print(other)
-        assert isinstance(other[self.distance_name], float), "Offset has been incorrectly specified such that they do not align with initial mutation resids!"
-        #Want to check that all the distance entries in the newly added distances column are all floats - i.e. there are no NaNs (or weird things like ints or strings)
+
+        #To check that the chain offsets have been correctly set
+        #and/or that structural data is of adequate quality -
+        # defining this as the no NaNs should be less than half no rows
+
+        #print("This is no rows:", len(other[self.distance_name])) #gives length of column 'Mg_distance'
+
+        half_data = len(other[self.distance_name])//2 # // divides and rounds DOWN to nearest int
+        #print("This is half the no rows, rounded down:", half_data)
+
+        total_nans = other[self.distance_name].isna().sum()
+        #print("This is total NaNs:", total_nans)
+
+        assert total_nans < half_data, "Too many NaNs! Have you defined your offsets correctly?"
+        #if total_nans >= half_data:
+        #    print("Too many NaNs!")
+        #else:
+        #    print("Not too many NaNs, so this is good!")
+
+        for i in other[self.distance_name]:
+            assert isinstance(i, float), "Distances must be floats!"
+
 
         other.reset_index(inplace=True)
         self.results.reset_index(inplace=True)
