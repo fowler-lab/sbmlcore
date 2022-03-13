@@ -109,8 +109,16 @@ class Stride(object):
 
 
 class FreeSASA(object):
-#N.B. So far the add_feature includes calculating the SASA as this is dependent on the original df of mutations
-# Try to change it around so consistent with StructuralDistances?
+    """
+    Uses external FreeSASA Python module to obtain the solvent accessible
+    surface areas of each residue in a user-specified pdb file.
+
+    Takes one argument: path to pdb file
+    e.g. a = sbmlcore.FreeSASA('path_pdbfile').
+
+    Functions:
+    add_feature - adds the SASA for each residue to the existing mutation dataframe
+    """
 
     def __init__(self, PDBFile):
 
@@ -128,7 +136,13 @@ class FreeSASA(object):
 #            print(key, ": %.2f A2" % area_classes[key])
 
     def add_feature(self, other):
+        """
+        Calculates and adds the SASA for each residue to the existing mutation dataframe.
 
+        Arguments: existing dataframe
+        e.g. if a = sbmlcore.FreeSASA('path_pdbfile'),
+        use new_df = a.add_feature(existing_df)
+        """
         assert isinstance(other, pandas.DataFrame), "You must be adding the extra feature to an existing dataframe!"
 
         assert 'mutation' in other.columns, "Passed dataframe must contain a column called mutation"
@@ -154,7 +168,7 @@ class FreeSASA(object):
         s = pandas.Series(results)
         b = pandas.DataFrame(s, columns=['surface_area'])
         #print(b)
-        
+
         #Join SASA df to original mutation df
         other = other.join(b, how='left')
 
