@@ -13,7 +13,7 @@ class StructuralDistances(object):
 
     Takes 4 arguments:
     1st - path to pdb file
-    2nd - group of atoms you want to calculate the distances to - uses MDAnalysis syntax, and distances are calculated from the centre of mass of this whole selection to each Ca in the Structure
+    2nd - group of atoms you want to calculate the distances to - uses MDAnalysis syntax, and distances are calculated from the centre of mass of this whole selection to each Ca in the structure
     3rd - your choice of name for the resulting distance column in the dataframe
     4th - resid offsets for the different chains - must be a dictionary in the form {'segid': int, ...}.
 
@@ -41,6 +41,7 @@ class StructuralDistances(object):
 
         # apply any offsets to the residue numbering
         # as specified in the supplied offsets dict e.g. {'A': 3, 'B': -4}
+        # Chain is segid i.e. A, B, C etc. 
         if offsets is not None:
             assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
             for chain in offsets:

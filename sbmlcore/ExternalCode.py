@@ -120,12 +120,18 @@ class FreeSASA(object):
     add_feature - adds the SASA for each residue to the existing mutation dataframe
     """
 
-    def __init__(self, PDBFile):
+    def __init__(self, PDBFile, offsets=None):
 
         if not pathlib.Path(PDBFile).is_file():
             raise IOError("Specified PDB file does not exist!")
 
         self.pdb_file = PDBFile
+
+        # apply any offsets to the residue numbering
+        # as specified in the supplied offsets dict e.g. {'A': 3, 'B': -4}
+        # Chain is segid i.e. A, B, C etc.
+        if offsets is not None:
+            assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
 
 #        structure = freesasa.Structure(self.pdb_file)
 #        values = freesasa.calc(structure)
@@ -137,7 +143,7 @@ class FreeSASA(object):
 
     def add_feature(self, other):
         """
-        Calculates and adds the SASA for each residue to the existing mutation dataframe.
+        Calculates and adds the SASA for each residue to the existing mutation dataframe (other).
 
         Arguments: existing dataframe
         e.g. if a = sbmlcore.FreeSASA('path_pdbfile'),
@@ -158,7 +164,7 @@ class FreeSASA(object):
         other['id'] = other['segid'] + other['resid'].astype(str)
         other.set_index('id', inplace=True)
 
-        #Creates correct text input for FreeSASA
+        #Creates correct text input for FreeSASA - N.B. includes resid from mutation data - this may not be consistent with pdb resids (hence the offset for pdb resids)!
         sele_text = ["%s%i, resi %i and chain %s" % (j,i,i,j) for i,j in zip(other.resid, other.segid)]
 
         #Obtain SASAs for each residue
@@ -166,7 +172,7 @@ class FreeSASA(object):
         values = freesasa.calc(structure)
         results = freesasa.selectArea(sele_text, structure, values)
         s = pandas.Series(results)
-        b = pandas.DataFrame(s, columns=['surface_area'])
+        b = pandas.DataFrame(s, columns=['SASA'])
         #print(b)
 
         #Join SASA df to original mutation df
