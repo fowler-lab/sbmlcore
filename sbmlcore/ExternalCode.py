@@ -132,7 +132,7 @@ class FreeSASA(object):
         # Chain is segid i.e. A, B, C etc.
         if offsets is not None:
             assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
-
+            self.offsets = offsets
 #        structure = freesasa.Structure(self.pdb_file)
 #        values = freesasa.calc(structure)
 #        area_classes = freesasa.classifyResults(values, structure)
@@ -155,6 +155,12 @@ class FreeSASA(object):
 
         assert 'segid' in other.columns, "Passed dataframe must contain a column called segid containing chain information e.g. A"
 
+        # Checks on offset specification
+        for chain in self.offsets:
+            assert chain in set(other.segid), "Need to specify a segid that exists in pdb!"
+            assert isinstance(self.offsets[chain], int), "Offsets for each segid must be an integer!"
+        
+
     #Split mutation df to create new index in form of segid-resid from mutation
         def split_mutation(row):
             m=row.mutation
@@ -164,8 +170,34 @@ class FreeSASA(object):
         other['id'] = other['segid'] + other['resid'].astype(str)
         other.set_index('id', inplace=True)
 
-        #Creates correct text input for FreeSASA - N.B. includes resid from mutation data - this may not be consistent with pdb resids (hence the offset for pdb resids)!
-        sele_text = ["%s%i, resi %i and chain %s" % (j,i,i,j) for i,j in zip(other.resid, other.segid)]
+    #Create single letter resname column for mutation dataframe
+        def resname_1(row):
+            m=row.mutation
+            return(str(m[0:1]))
+
+        other['resname_1'] = other.apply(resname_1, axis=1)
+
+
+
+    #Adds offsets to mutation dataframe
+        other["chain_offsets"] = [self.offsets[chain] for chain in other.segid]
+
+        #Add three letter amino acid to mutation dataframe (needed for FreeSASA input)
+        amino_acid_onetothreeletter = {'C': 'CYS', 'D': 'ASP', 'S': 'SER', 'Q': 'GLN', 'K': 'LYS',
+        'I': 'ILE', 'P': 'PRO', 'T': 'THR', 'F': 'PHE', 'N': 'ASN',
+        'G': 'GLY', 'H': 'HIS', 'L': 'LEU', 'R': 'ARG', 'W': 'TRP',
+        'A': 'ALA', 'V': 'VAL', 'E': 'GLU', 'Y': 'TYR', 'M': 'MET'}
+
+        other["resname_3"] = [amino_acid_onetothreeletter[resname] for resname in other.resname_1]
+
+        #Adds column for pdb resids (i.e. the resid as given in the pdb which may not be the same as in the mutation df)
+        #N.B. Specify the offsets in the same way as you did for structural features class!
+        other["pdb_resid"] = other["resid"] - other["chain_offsets"]
+
+        #Creates correct text input for FreeSASA - N.B. includes offsets in  pdb_resid i.e. these new resids should be the same as in the pdb (not the mutation dataframe)
+        sele_text = ["%s%i, resi %i and chain %s and resn %s" % (k,i,j,k,l) for i,j,k,l in zip(other.resid, other.pdb_resid, other.segid, other.resname_3)]
+
+        #sele_text = ["%s%i, resi %i and chain %s" % (j,i,i,j) for i,j in zip(other.resid, other.segid)]
 
         #Obtain SASAs for each residue
         structure = freesasa.Structure(self.pdb_file)
