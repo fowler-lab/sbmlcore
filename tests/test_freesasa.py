@@ -24,15 +24,19 @@ def test_freesasa_working():
     # Incorrectly naming a segid offset with an incorrect letter
     with pytest.raises(AssertionError):
         a = sbmlcore.FreeSASA('tests/5uh6.pdb', offsets = {'A': 0, 'B': 0, 'Z': -6})
+        df = a.add_feature(df)
 
     # Incorrectly naming a segid offset with a lower case letter
     with pytest.raises(AssertionError):
         a = sbmlcore.FreeSASA('tests/5uh6.pdb', offsets = {'A': 0, 'B': 0, 'c': -6})
+        df = a.add_feature(df)
 
     # Specifying an offset value as a non-integer e.g. as a string
     with pytest.raises(AssertionError):
         a = sbmlcore.FreeSASA('tests/5uh6.pdb', offsets = {'A': 0, 'B': 0, 'C': 'c'})
+        df = a.add_feature(df)
 
     # Specifying the offset value as a non-integer e.g. as a float
     with pytest.raises(AssertionError):
         a = sbmlcore.FreeSASA('tests/5uh6.pdb', offsets = {'A': 0, 'B': 0, 'C': 2.3})
+        df = a.add_feature(df)
