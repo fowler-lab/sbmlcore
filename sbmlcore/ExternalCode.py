@@ -133,6 +133,9 @@ class FreeSASA(object):
         if offsets is not None:
             assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
             self.offsets = offsets
+        else:
+            print("offsets = None, are you sure?")
+            self.offsets = offsets
 #        structure = freesasa.Structure(self.pdb_file)
 #        values = freesasa.calc(structure)
 #        area_classes = freesasa.classifyResults(values, structure)
@@ -156,10 +159,13 @@ class FreeSASA(object):
         assert 'segid' in other.columns, "Passed dataframe must contain a column called segid containing chain information e.g. A"
 
         # Checks on offset specification
-        for chain in self.offsets:
-            assert chain in set(other.segid), "Need to specify a segid that exists in pdb!"
-            assert isinstance(self.offsets[chain], int), "Offsets for each segid must be an integer!"
-        
+        if self.offsets is not None:
+            for chain in self.offsets:
+                assert chain in set(other.segid), "Need to specify a segid that exists in pdb!"
+                assert isinstance(self.offsets[chain], int), "Offsets for each segid must be an integer!"
+        else:
+            pass
+
 
     #Split mutation df to create new index in form of segid-resid from mutation
         def split_mutation(row):
@@ -179,8 +185,11 @@ class FreeSASA(object):
 
 
 
-    #Adds offsets to mutation dataframe
-        other["chain_offsets"] = [self.offsets[chain] for chain in other.segid]
+        #Adds offsets to mutation dataframe
+        if self.offsets is not None:
+            other["chain_offsets"] = [self.offsets[chain] for chain in other.segid]
+        else:
+            other["chain_offsets"] = 0
 
         #Add three letter amino acid to mutation dataframe (needed for FreeSASA input)
         amino_acid_onetothreeletter = {'C': 'CYS', 'D': 'ASP', 'S': 'SER', 'Q': 'GLN', 'K': 'LYS',
