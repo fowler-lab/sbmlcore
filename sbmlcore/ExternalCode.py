@@ -220,7 +220,30 @@ class FreeSASA(object):
         other = other.join(b, how='left')
 
         return(other)
-#        self.results = pandas.DataFrame(rows, columns=['resname', 'segid', 'resid',\
-#                                                       'ordinal_resid', 'secondary_structure',\
-#                                                       'secondary_structure_long', 'phi', 'psi',\
-#                                                       'residue_sasa', 'pdb_code'])
+
+class SNAP2(object):
+    """
+    Uses the .csv output file from Snap2 https://rostlab.org/services/snap2web/ which predicts the likelihood of each amino acid mutation affecting the function of the protein.
+
+    Arguments: .csv output from the SNAP2 webserver
+    """
+    def __init__(self, CSVFile, offsets=None):
+
+        if not pathlib.Path(CSVFile).is_file():
+            raise IOError("Specified CSV file does not exist!")
+
+        self.csv_file = CSVFile
+
+        # apply any offsets to the residue numbering
+        # as specified in the supplied offsets dict e.g. {'A': 3, 'B': -4}
+        # Chain is segid i.e. A, B, C etc.
+        if offsets is not None:
+            assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
+            self.offsets = offsets
+        else:
+            print("offsets = None, are you sure?")
+            self.offsets = offsets
+
+        #Create dataframe from .csv file
+        snap2_df = pandas.read_csv(self.csv_file)
+        print(snap2_df)

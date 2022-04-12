@@ -1,4 +1,4 @@
-# Tests for StructuralDistances.py
+# Tests for FreeSASA class in ExternalCode.py
 import pandas
 import numpy
 import pytest
