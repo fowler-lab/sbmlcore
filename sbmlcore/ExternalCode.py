@@ -67,7 +67,7 @@ class Stride(object):
 
         self.results[['phi','psi']] = self.results.apply(correct_torsions, axis=1)
 
-        self.results = self.results[['resid', 'amino_acid', 'resname', 'segid',
+        self.results = self.results[['resid', 'amino_acid', 'segid',
                                      'secondary_structure', 'secondary_structure_long',
                                      'phi', 'psi', 'residue_sasa']]
 

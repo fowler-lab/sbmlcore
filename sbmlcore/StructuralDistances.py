@@ -41,7 +41,7 @@ class StructuralDistances(object):
 
         # apply any offsets to the residue numbering
         # as specified in the supplied offsets dict e.g. {'A': 3, 'B': -4}
-        # Chain is segid i.e. A, B, C etc. 
+        # Chain is segid i.e. A, B, C etc.
         if offsets is not None:
             assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
             for chain in offsets:
