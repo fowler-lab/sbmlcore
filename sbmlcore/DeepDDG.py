@@ -13,7 +13,6 @@ class DeepDDG(object):
 
         # unfortunately deepDDG uses a non-standard tab/space delimited file format
         # this breaks pandas.read_csv so it is easier to do it the long way....
-
         results = []
 
         # open the file for reading
@@ -52,7 +51,6 @@ class DeepDDG(object):
         def update_resid(row, offsets):
             offset = offsets[row['segid']]
             return row['resid'] + offset
-
 
         if offsets is not None:
 

@@ -25,7 +25,7 @@ def wrap_angle(angle):
 
 class Stride(object):
 
-    def __init__(self, PDBFile):
+    def __init__(self, PDBFile, offsets=None):
 
         assert pathlib.Path(PDBFile).is_file(), "specified PDB file does not exist!"
 
@@ -73,6 +73,27 @@ class Stride(object):
 
         tmp = pandas.get_dummies(self.results.secondary_structure)
         self.results = self.results.join(tmp, how='left')
+
+        # apply any offsets to the residue numbering
+        # as specified in the supplied offsets dict e.g. {'A': 3, 'B': -4}
+        # Chain is segid i.e. A, B, C etc.
+
+        def update_resid(row, offsets):
+            offset = offsets[row['segid']]
+            return row['resid'] + offset
+
+        if offsets is not None:
+
+            assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
+
+            assert set(offsets.keys()) == set(self.results.segid.unique()), 'specified segids in offsets do not match what is in the provided DeepDDG file!'
+
+            for chain in offsets:
+                assert isinstance(offsets[chain], int), "Offsets for each segid must be an integer!"
+
+            self.results['resid'] = self.results.apply(update_resid, args=(offsets,), axis=1)
+
+
 
     def add_feature(self, other, feature_name='all'):
 
