@@ -2,3 +2,4 @@ pandas
 pytest
 pytest-cov
 freesasa
+MDAnalysis
