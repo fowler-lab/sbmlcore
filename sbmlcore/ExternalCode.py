@@ -204,8 +204,6 @@ class FreeSASA(object):
 
         other['resname_1'] = other.apply(resname_1, axis=1)
 
-
-
         #Adds offsets to mutation dataframe
         if self.offsets is not None:
             other["chain_offsets"] = [self.offsets[chain] for chain in other.segid]
@@ -239,6 +237,9 @@ class FreeSASA(object):
 
         #Join SASA df to original mutation df
         other = other.join(b, how='left')
+        other.reset_index(inplace=True)
+
+        other.drop(columns = ['index', 'resname_1', 'chain_offsets', 'resname_3', 'pdb_resid'], inplace=True)
 
         return(other)
 
