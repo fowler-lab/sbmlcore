@@ -153,10 +153,7 @@ class FreeSASA(object):
         # Chain is segid i.e. A, B, C etc.
         if offsets is not None:
             assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
-            self.offsets = offsets
-        else:
-            print("offsets = None, are you sure?")
-            self.offsets = offsets
+        self.offsets = offsets
 #        structure = freesasa.Structure(self.pdb_file)
 #        values = freesasa.calc(structure)
 #        area_classes = freesasa.classifyResults(values, structure)
