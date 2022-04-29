@@ -225,7 +225,9 @@ class SNAP2(object):
     """
     Uses the .csv output file from Snap2 https://rostlab.org/services/snap2web/ which predicts the likelihood of each amino acid mutation affecting the function of the protein.
 
-    Arguments: .csv output from the SNAP2 webserver
+    Arguments: .csv output from the SNAP2 webserver.
+            N.B. If structure contains multiple chains, each one needs to be loaded into the webserver individually, then the .csv files need to be concatenated using csv_segid_concat.ipynb and the segid for each chain correctly assigned. Only then can the SNAP2 class here be used.
+            Offsets - supplied as a dictionary for each chain.
     """
     def __init__(self, CSVFile, offsets=None):
 
@@ -238,7 +240,7 @@ class SNAP2(object):
         # as specified in the supplied offsets dict e.g. {'A': 3, 'B': -4}
         # Chain is segid i.e. A, B, C etc.
         if offsets is not None:
-            assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
+            assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': 4}"
             self.offsets = offsets
         else:
             print("offsets = None, are you sure?")
@@ -246,4 +248,77 @@ class SNAP2(object):
 
         #Create dataframe from .csv file
         snap2_df = pandas.read_csv(self.csv_file)
+        #print(snap2_df)
+
+        #Remove entries with less than 80% accuracy
+        #Could make this into a user option instead?
+        #First need to change 'Expected Accuracy' from strings to floats
+        no_percentage = snap2_df['Expected Accuracy'].replace(to_replace='%', value='', regex=True)
+
+        #Turn str into int64 so that inequalities can be used
+        series = pandas.to_numeric(no_percentage)
+
+        #no_percentage[ series < 80 ] #creates series with only those rows for which accuracy < 80%
+        #no_percentage[series < 80].index #extracts index for each of the rows for which accuracy < 80%
+
+        #Remove the entries for which the indices are specified above
+        snap2_df.drop(no_percentage[series < 80].index, inplace=True)
+
+        #Add offsets column and correct mutation resid column and mutated resname (i.e. the residue change resulting from the mutation)
+
+        def split_mutation_toresname(row):
+            return pandas.Series([row.Variant[-1], int(row.Variant[1:-1])])
+
+        snap2_df[["mutated_to_resname", "resid"]] = snap2_df.apply(split_mutation_toresname, axis=1)
+
+        #def split_mutation(row):
+        #    m=row.Variant
+        #    return(int(m[1:-1]))
+
+        #snap2_df['resid'] = snap2_df.apply(split_mutation, axis=1)
+        #snap2_df['id'] = snap2_df['segid'] + snap2_df['resid'].astype(str)
+        #snap2_df.set_index('id', inplace=True)
+
+        #Adds column for offsets
+        snap2_df["chain_offsets"] = [offsets[chain] for chain in snap2_df.segid]
+
+        #Applies offsets - adds them, as is also the case for Structural Features
+        snap2_df["mutation_resid"] = snap2_df["resid"] + snap2_df["chain_offsets"]
+
         print(snap2_df)
+
+    def add_feature(self, other):
+        """
+        Adds distances to existing mutation dataframe, and returns new joined dataframe.
+        Arguments: existing dataframe
+        e.g. if a = sbmlcore.SNAP2(...),
+        use new_df = a.add_feature(existing_df)
+        """
+
+        assert isinstance(other, pandas.DataFrame), "You must be adding the extra feature to an existing dataframe!"
+
+        assert 'Score' not in other.columns, "You've already added that feature!"
+
+        assert 'mutation' in other.columns, "Passed dataframe must contain a column called mutation"
+
+        assert 'segid' in other.columns, "Passed dataframe must contain a column called segid containing chain information e.g. A"
+
+        # Identifies the original one letter resname and resid (consistent with offset) so that the new feature can be subsequently linked to these
+        #def split_mutation(row):
+        #    return pandas.Series([row.mutation[0], int(row.mutation[1:-1])])
+
+        #other[['amino_acid', 'mutation_resid']] = other.apply(split_mutation, axis=1)
+
+        #Add column for mutated_to_resname into original mutation df (i.e. the residue change as a result of the mutation) and the mutation resid so that the new feature can subsequently be linked to these
+        def split_mutation_toresname(row):
+            return pandas.Series([row.mutation[-1], int(row.mutation[1:-1])])
+
+        other[['mutated_to_resname', 'mutation_resid']] = other.apply(split_mutation_toresname, axis=1)
+
+        #Create MultiIndex using segid, resid and amino_acid
+        other.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
+        self.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
+
+        other = other.join(self.results, how='left')
+
+        return(other)
