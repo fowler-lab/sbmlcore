@@ -11,7 +11,8 @@ class StructuralDistances(object):
     """
     Class for structural distances
 
-    Takes 4 arguments:
+    Parameters
+    ---------
     1st - path to pdb file
     2nd - group of atoms you want to calculate the distances to - uses MDAnalysis syntax, and distances are calculated from the centre of mass of this whole selection to each Ca in the structure
     3rd - your choice of name for the resulting distance column in the dataframe
@@ -26,11 +27,10 @@ class StructuralDistances(object):
 
     def __init__(self, pdb_file, distance_selection, distance_name, offsets=None):
 
-        #Check file exists
+        # check file exists
         assert pathlib.Path(pdb_file).is_file(), "File does not exist!"
 
         u = MDAnalysis.Universe(pdb_file)
-        #print(set(u.residues.segids))
 
         #Ensure distance selection is a string
         assert isinstance(distance_selection, str), "Distance selection must be a string!"
