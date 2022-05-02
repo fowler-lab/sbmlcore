@@ -27,7 +27,7 @@ def snap2_offsets():
     #Should all fail!
     # Offsets is not a dictionary
     with pytest.raises(AssertionError):
-        a = sbmlcore.FreeSASA('tests/5uh6-snap2.csv', offsets = [0, 0, -6])
+        a = sbmlcore.SNAP2('tests/5uh6-snap2.csv', offsets = [0, 0, -6])
 
     # Incorrectly naming a segid offset with an incorrect letter
     with pytest.raises(AssertionError):

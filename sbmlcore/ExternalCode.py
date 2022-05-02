@@ -25,7 +25,6 @@ def wrap_angle(angle):
 
 class Stride(object):
 
-    def __init__(self, PDBFile):
     def __init__(self, PDBFile, offsets=None):
 
         assert pathlib.Path(PDBFile).is_file(), "specified PDB file does not exist!"
@@ -305,7 +304,8 @@ class SNAP2(object):
         #Applies offsets - adds them, as is also the case for Structural Features
         snap2_df["mutation_resid"] = snap2_df["resid"] + snap2_df["chain_offsets"]
 
-        print(snap2_df)
+        self.snap2_df = snap2_df
+
 
     def add_feature(self, other):
         """
@@ -337,8 +337,8 @@ class SNAP2(object):
 
         #Create MultiIndex using segid, resid and amino_acid
         other.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
-        self.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
+        self.snap2_df.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
 
-        other = other.join(self.results, how='left')
-
+        other = other.join(self.snap2_df, how='left')
+        #print(other)
         return(other)
