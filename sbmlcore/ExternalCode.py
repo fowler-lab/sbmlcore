@@ -26,6 +26,7 @@ def wrap_angle(angle):
 class Stride(object):
 
     def __init__(self, PDBFile):
+    def __init__(self, PDBFile, offsets=None):
 
         assert pathlib.Path(PDBFile).is_file(), "specified PDB file does not exist!"
 
@@ -67,12 +68,33 @@ class Stride(object):
 
         self.results[['phi','psi']] = self.results.apply(correct_torsions, axis=1)
 
-        self.results = self.results[['resid', 'amino_acid', 'resname', 'segid',
+        self.results = self.results[['resid', 'amino_acid', 'segid',
                                      'secondary_structure', 'secondary_structure_long',
                                      'phi', 'psi', 'residue_sasa']]
 
         tmp = pandas.get_dummies(self.results.secondary_structure)
         self.results = self.results.join(tmp, how='left')
+
+        # apply any offsets to the residue numbering
+        # as specified in the supplied offsets dict e.g. {'A': 3, 'B': -4}
+        # Chain is segid i.e. A, B, C etc.
+
+        def update_resid(row, offsets):
+            offset = offsets[row['segid']]
+            return row['resid'] + offset
+
+        if offsets is not None:
+
+            assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
+
+            assert set(offsets.keys()) == set(self.results.segid.unique()), 'specified segids in offsets do not match what is in the provided DeepDDG file!'
+
+            for chain in offsets:
+                assert isinstance(offsets[chain], int), "Offsets for each segid must be an integer!"
+
+            self.results['resid'] = self.results.apply(update_resid, args=(offsets,), axis=1)
+
+
 
     def add_feature(self, other, feature_name='all'):
 
@@ -132,10 +154,7 @@ class FreeSASA(object):
         # Chain is segid i.e. A, B, C etc.
         if offsets is not None:
             assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
-            self.offsets = offsets
-        else:
-            print("offsets = None, are you sure?")
-            self.offsets = offsets
+        self.offsets = offsets
 #        structure = freesasa.Structure(self.pdb_file)
 #        values = freesasa.calc(structure)
 #        area_classes = freesasa.classifyResults(values, structure)
@@ -183,8 +202,6 @@ class FreeSASA(object):
 
         other['resname_1'] = other.apply(resname_1, axis=1)
 
-
-
         #Adds offsets to mutation dataframe
         if self.offsets is not None:
             other["chain_offsets"] = [self.offsets[chain] for chain in other.segid]
@@ -218,6 +235,9 @@ class FreeSASA(object):
 
         #Join SASA df to original mutation df
         other = other.join(b, how='left')
+        other.reset_index(inplace=True)
+
+        other.drop(columns = ['index', 'resname_1', 'chain_offsets', 'resname_3', 'pdb_resid'], inplace=True)
 
         return(other)
 

@@ -12,6 +12,7 @@ from .ExternalCode import Stride
 from .ExternalCode import FreeSASA
 from .ExternalCode import SNAP2
 from .StructuralDistances import StructuralDistances
+from .DeepDDG import DeepDDG
 
 '''
 Use of semantic versioning, MAJOR.MINOR.MAINTAINANCE where

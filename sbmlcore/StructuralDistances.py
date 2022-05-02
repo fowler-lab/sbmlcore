@@ -41,7 +41,7 @@ class StructuralDistances(object):
 
         # apply any offsets to the residue numbering
         # as specified in the supplied offsets dict e.g. {'A': 3, 'B': -4}
-        # Chain is segid i.e. A, B, C etc. 
+        # Chain is segid i.e. A, B, C etc.
         if offsets is not None:
             assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
             for chain in offsets:
@@ -120,6 +120,6 @@ class StructuralDistances(object):
         other.reset_index(inplace=True)
         self.results.reset_index(inplace=True)
 
-        other.drop(columns = ['amino_acid', 'resid', 'resname'], inplace=True)
+        other.drop(columns = ['amino_acid', 'resid', 'resname', 'resname_1', 'chain_offsets', 'resname_3', 'pdb_resid'], inplace=True)
 
         return(other)
