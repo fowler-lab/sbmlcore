@@ -180,15 +180,13 @@ class TrajectoryDistances(object):
         results = pandas.DataFrame(Ca_data)
         results["amino_acid"] = results.apply(one_letter, axis=1)
         results.drop(columns=["resname"], inplace=True)
-        #otherwise column names post merge in add_feature are messy 
+        # otherwise column names post merge in add_feature are messy
 
         if offsets is not None:
             results = TrajectoryDistances._apply_offsets(results, offsets)
 
         self.results = results
         self.distance_name = distance_name
-
-        # results.to_csv('../tests/5uh6_traj_distances.csv')
 
     def add_feature(self, existing_df):
         """

@@ -80,8 +80,7 @@ def test_end_time():
         )
 
 
-def test_working():
-
+def test_runs():
     a = sbmlcore.TrajectoryDistances(
         "tests/rpob-5uh6-3-warm.gro.gz",
         ["tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc"],
@@ -99,18 +98,62 @@ def test_exclude_percentiles():
 
 def test_init():
     a = sbmlcore.TrajectoryDistances(
-        "tests/rpob-5uh6-3-warm.gro",
+        "tests/rpob-5uh6-3-warm.gro.gz",
         [
-            "tests/rpob-5uh6-3-md-1-50ns-dt100ps-nojump.xtc",
-            "tests/rpob-5uh6-3-md-2-50ns-dt100ps-nojump.xtc",
+            "tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc",
+            "tests/rpob-5uh6-3-md-2-50ns-dt10ns-nojump.xtc",
+            "tests/rpob-5uh6-3-md-3-50ns-dt10ns-nojump.xtc"
         ],
         "tests/5uh6.pdb",
         "resname RFP",
-        "max",
+        "max RFP",
+        distance_type="max",
+        offsets = {'A': 0, 'B': 0, 'C': -6},
         percentile_exclusion=True,
     ).return_dist_df()
     b = pandas.read_csv("tests/5uh6_traj_distances.csv", index_col=0)
     pandas.testing.assert_frame_equal(a, b)
+
+
+def test_add_feature():
+    #although this requires running the entire class to merge the dfs, 
+        #all other components of the class should have been individually tested by now
+    a = {'segid': ['A', 'A', 'A', 'B', 'C', 'C'], 'mutation': ['I3D','S4K', 'Q5V', 'R6D', 'S450F', 'D435F']}
+    df = pandas.DataFrame.from_dict(a)
+    b = sbmlcore.TrajectoryDistances(
+        "tests/rpob-5uh6-3-warm.gro.gz",
+        [
+            "tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc",
+            "tests/rpob-5uh6-3-md-2-50ns-dt10ns-nojump.xtc",
+            "tests/rpob-5uh6-3-md-3-50ns-dt10ns-nojump.xtc"
+        ],
+        "tests/5uh6.pdb",
+        "resname RFP",
+        "max RFP",
+        distance_type="max",
+        offsets = {'A': 0, 'B': 0, 'C': -6},
+        percentile_exclusion=True,
+    )
+    c = sbmlcore.TrajectoryDistances(
+        "tests/rpob-5uh6-3-warm.gro.gz",
+        [
+            "tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc",
+            "tests/rpob-5uh6-3-md-2-50ns-dt10ns-nojump.xtc",
+            "tests/rpob-5uh6-3-md-3-50ns-dt10ns-nojump.xtc"
+        ],
+        "tests/5uh6.pdb",
+        "resname RFP",
+        "mean RFP",
+        distance_type="mean",
+        offsets = {'A': 0, 'B': 0, 'C': -6},
+        percentile_exclusion=True,
+    )
+    test_df = pandas.read_csv("tests/5uh6_added_traj_distances.csv", index_col=0)
+    df = b.add_feature(df)
+    df = c.add_feature(df)
+    pandas.testing.assert_frame_equal(test_df, df)
+
+
 
 
     
