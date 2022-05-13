@@ -22,7 +22,7 @@ def test_wrong_type():
         a = sbmlcore.TrajectoryDistances(
             "tests/rpob-5uh6-3-warm.gro.gz",
             ["tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc"],
-            "tests/3pl1.pdb",
+            "tests/5uh6.pdb",
             "resname RFP",
             "dist_RIF",
             distance_type="average",
@@ -38,6 +38,40 @@ def test_not_list():
             "tests/3pl1.pdb",
             "resname FE",
             "dist_FE",
+        )
+
+
+def test_not_string():
+
+    with pytest.raises(AssertionError):
+        a = sbmlcore.TrajectoryDistances(
+            "tests/3pl1.pdb",
+            ["tests/3pl1.xtc"],
+            "tests/3pl1.pdb",
+            5,
+            "dist_FE",
+        )
+
+    with pytest.raises(AssertionError):
+        b = sbmlcore.TrajectoryDistances(
+            "tests/3pl1.pdb",
+            ["tests/3pl1.xtc"],
+            "tests/3pl1.pdb",
+            "resname FE",
+            ["dist_FE"],
+        )
+
+
+def test_boolean():
+
+    with pytest.raises(AssertionError):
+        a = sbmlcore.TrajectoryDistances(
+            "tests/3pl1.pdb",
+            ["tests/3pl1.xtc"],
+            "tests/3pl1.pdb",
+            "resname FE",
+            "dist_FE",
+            percentile_exclusion="true",
         )
 
 
@@ -84,7 +118,7 @@ def test_runs():
     a = sbmlcore.TrajectoryDistances(
         "tests/rpob-5uh6-3-warm.gro.gz",
         ["tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc"],
-        "tests/3pl1.pdb",
+        "tests/5uh6.pdb",
         "resname RFP",
         "dist_RIF",
     )
@@ -94,15 +128,17 @@ def test_exclude_percentiles():
     input = numpy.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
     expected_output = numpy.array([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
     output = sbmlcore.TrajectoryDistances._exclude_percentiles(input)
-    assert output == expected_output
+    assert output.all() == expected_output.all()
 
 
 def test_apply_offsets():
-    a = {"A": [1, 2, 3, 4, 5, 6], "B": [1, 2, 3, 4, 5, 6], "C": [1, 2, 3, 4, 5, 6]}
+    a = {
+        "segid": ["A", "A", "A", "A", "A", "B", "B", "C", "C", "C", "C", "C", "C"],
+        "resid": [1, 2, 3, 4, 5, 1, 2, 12, 13, 14, 15, 16, 17],
+    }
     b = {
-        "A": [-2, -1, 0, 1, 2, 3],
-        "B": [1, 2, 3, 4, 5, 6],
-        "C": [8, 9, 10, 11, 12, 13],
+        "segid": ["A", "A", "A", "A", "A", "B", "B", "C", "C", "C", "C", "C", "C"],
+        "resid": [-2, -1, 0, 1, 2, 1, 2, 19, 20, 21, 22, 23, 24],
     }
     input_df = pandas.DataFrame.from_dict(a)
     expected_output = pandas.DataFrame.from_dict(b)
