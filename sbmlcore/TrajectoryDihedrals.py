@@ -88,21 +88,62 @@ class TrajectoryDihedrals(object):
                 assert start_time < end_time
 
         self.dihedral = dihedral
+        self.angle_type = angle_type
+
+        first_pass = True
 
         for trajectory in trajectory_list:
 
             u = MDAnalysis.Universe(pdb_file, trajectory)
             u_static = MDAnalysis.Universe(static_pdb)
 
+            residues_all = u.residues
+
             if add_bonds:
-                protein_res = add_bonds(trajectory).select_atoms("protein")
+                protein_res = TrajectoryDihedrals._add_bonds(trajectory).select_atoms("protein")
             else:
                 protein_res = trajectory.select_atoms("protein")
 
-            self.calculate_dihedrals(trajectory, protein_res)
-            #STOPPED HERE            
+            dihedrals = self.calculate_dihedrals(u, protein_res)
 
+            if first_pass:
+                dihedral_array = dihedrals
+                first_pass = False
+            else:
+                dihedral_array = numpy.concatenate([dihedral_array, dihedrals])
+
+        # inverts the array to make subseqeunt calculations more intuitive
+        dihedral_array = dihedral_array.T
+
+        if percentile_exclusion == True:
+            dihedral_array = TrajectoryDihedrals._exclude_percentiles(dihedral_array)
             
+        angles = self.apply_angle_type(dihedral_array)
+
+        #pull segment ids form the static pdb file
+        segids = [i for i in u_static.select_atoms("protein").residues.segids]
+
+        # constructs the dictionary containihg the distances and assocaited residue labels
+        data = {
+            "segid": segids,
+            "resid": residues_all.resids,
+            "resname": residues_all.resnames,
+            angle_name: angles,
+        }
+
+        def one_letter(row):
+            return amino_acid_3to1letter[row.resname]
+
+        results = pandas.DataFrame(data)
+        results['amino_acid'] = results.apply(one_letter, axis=1)
+        results.drop(columns=["resname"], inplace=True)
+        # otherwise column names post merge in add_feature are messy
+
+        if offsets is not None:
+            results = TrajectoryDihedrals._apply_offsets(results, offsets)
+
+        self.results = results
+        self.angle_name = angle_name
 
     def calculate_dihedrals(self, trajectory, protein_res):
         """
@@ -112,7 +153,7 @@ class TrajectoryDihedrals(object):
 
         selection_call = 'res.' + self.dihedral + '_selection()'
 
-        nonetypes = TrajectoryDihedrals._search_nonetypes(trajectory)
+        nonetypes = self.search_nonetypes(trajectory)
 
         NaNs = numpy.empty((len(trajectory.trajectory), 1))
         NaNs[:] = 0
@@ -136,7 +177,7 @@ class TrajectoryDihedrals(object):
 
         return (x)
 
-    def _search_nonetypes(self, traj):
+    def search_nonetypes(self, traj):
         """searches for nonetype dihedral angles and returns a list of their indexes"""
 
         selection_call = 'i.' + self.dihedral + '_selection()'
@@ -150,6 +191,20 @@ class TrajectoryDihedrals(object):
             index += 1
         return nonetype_list
 
+    def apply_angle_type(self, dihedral_array):
+        """calculates the specified angle for each residue """
+
+        if self.angle_type == 'mean':
+            angles = numpy.mean(dihedral_array, axis=1)
+        elif self.angle_type == 'min':
+            angles = numpy.min(dihedral_array, axis=1)
+        elif self.angle_type == 'max':
+            angles = numpy.max(dihedral_array, axis=1)
+        elif self.angle_type == 'mean':
+            angles = numpy.median(dihedral_array, axis=1)
+
+        return angles
+
     @staticmethod
     def _add_bonds(traj):
         """add bonds to protein (only) in a trajectory"""
@@ -161,3 +216,37 @@ class TrajectoryDihedrals(object):
         traj.add_TopologyAttr("bonds", bonds)
         return traj
 
+    @staticmethod
+    def _exclude_percentiles(data):
+        """return array without 5% tails"""
+        data_list = []
+        for resnum in range(len(data)):
+            arr = data[resnum]
+            p5 = numpy.percentile(arr, 5)
+            p95 = numpy.percentile(arr, 95)
+            data_list.append(arr[(arr >= p5) & (arr <= p95)])
+        data_arr = numpy.array(data_list)
+        return data_arr
+
+    @staticmethod
+    def _apply_offsets(df, offsets):
+        """returns dataframe with number offsets applied to the resids"""
+        for chain in offsets:
+            assert chain in set(
+                df["segid"]
+            ), "Need to specifify a segid that exists in the static pdb!"
+            assert isinstance(
+                offsets[chain], int
+            ), "Offsets for each segid must be an integer!"
+
+            resid_list = []
+            for i in df.index:
+                if df["segid"][i] == chain:
+                    resid_list.append(df["resid"][i] + offsets[chain])
+                else:
+                    resid_list.append(df["resid"][i])
+
+            df["resid"] = resid_list
+        return df
+
+#need to figure out way to exclude first frame
