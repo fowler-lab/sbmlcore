@@ -53,13 +53,9 @@ class TrajectoryDihedrals(object):
         assert isinstance(trajectory_list, list), "trajectories not provided as a list"
         for i in trajectory_list:
             assert pathlib.Path(i).is_file(), "File does not exist!"
-        
-        #ensure the dihedral is legal
-        assert dihedral in [
-            "phi",
-            "psi",
-            "omega"
-        ]
+
+        # ensure the dihedral is legal
+        assert dihedral in ["phi", "psi", "omega"]
 
         # ensure the angle type is legal, and the distance selection name are strings
         assert angle_type in [
@@ -107,13 +103,12 @@ class TrajectoryDihedrals(object):
             dt = u.trajectory[1].time - u.trajectory[0].time
 
             if start_time is not None:
-                u = TrajectoryDihedrals._filter_frames(pdb_file, u, 'start', start_time, dt)
+                u = TrajectoryDihedrals._filter_frames(
+                    pdb_file, u, "start", start_time, dt
+                )
                 end_time = end_time - start_time
             if end_time is not None:
-                u = TrajectoryDihedrals._filter_frames(pdb_file, u, 'end', end_time, dt)
-
-            for i in u.trajectory:
-                print (i.time)
+                u = TrajectoryDihedrals._filter_frames(pdb_file, u, "end", end_time, dt)
 
             residues_all = u.select_atoms("name CA")
 
@@ -135,10 +130,10 @@ class TrajectoryDihedrals(object):
 
         if percentile_exclusion == True:
             dihedral_array = TrajectoryDihedrals._exclude_percentiles(dihedral_array)
-            
+
         angles = self.apply_angle_type(dihedral_array)
 
-        #pull segment ids form the static pdb file
+        # pull segment ids form the static pdb file
         segids = [i for i in u_static.select_atoms("protein").residues.segids]
 
         # constructs the dictionary containihg the distances and assocaited residue labels
@@ -153,7 +148,7 @@ class TrajectoryDihedrals(object):
             return amino_acid_3to1letter[row.resname]
 
         results = pandas.DataFrame(data)
-        results['amino_acid'] = results.apply(one_letter, axis=1)
+        results["amino_acid"] = results.apply(one_letter, axis=1)
         results.drop(columns=["resname"], inplace=True)
         # otherwise column names post merge in add_feature are messy
 
@@ -163,14 +158,13 @@ class TrajectoryDihedrals(object):
         self.results = results
         self.angle_name = angle_name
 
-
     def calculate_dihedrals(self, trajectory, protein_res):
         """
-        Calculates specified dihedral angles for all residues in the protein 
+        Calculates specified dihedral angles for all residues in the protein
         and returns array of shape (timesteps, residues)
         """
 
-        selection_call = 'res.' + self.dihedral + '_selection()'
+        selection_call = "res." + self.dihedral + "_selection()"
 
         nonetypes = self.search_nonetypes(trajectory)
 
@@ -180,26 +174,40 @@ class TrajectoryDihedrals(object):
         if nonetypes[0] == 0:
             x = NaNs.copy()
         else:
-            x = Dihedral([eval(selection_call) for res in protein_res.residues[0:nonetypes[0]]]).run()
-            x = numpy.concatenate((x.results['angles'], NaNs), axis=1)
-        
+            x = Dihedral(
+                [eval(selection_call) for res in protein_res.residues[0 : nonetypes[0]]]
+            ).run()
+            x = numpy.concatenate((x.results["angles"], NaNs), axis=1)
+
         for i in range(0, len(nonetypes)):
-            if i+1 < len(nonetypes):
-                y = Dihedral([eval(selection_call) for res in protein_res.residues[nonetypes[i]+1:nonetypes[i+1]]]).run()
-                x = numpy.concatenate((x, y.results['angles'], NaNs), axis=1)
+            if i + 1 < len(nonetypes):
+                y = Dihedral(
+                    [
+                        eval(selection_call)
+                        for res in protein_res.residues[
+                            nonetypes[i] + 1 : nonetypes[i + 1]
+                        ]
+                    ]
+                ).run()
+                x = numpy.concatenate((x, y.results["angles"], NaNs), axis=1)
             else:
-                if nonetypes[-1] == len(protein_res.residues)-1:
+                if nonetypes[-1] == len(protein_res.residues) - 1:
                     continue
                 else:
-                    y = Dihedral([eval(selection_call) for res in protein_res.residues[nonetypes[i]+1:]]).run()
-                    x = numpy.concatenate((x, y.results['angles']), axis=1)
+                    y = Dihedral(
+                        [
+                            eval(selection_call)
+                            for res in protein_res.residues[nonetypes[i] + 1 :]
+                        ]
+                    ).run()
+                    x = numpy.concatenate((x, y.results["angles"]), axis=1)
 
-        return (x)
+        return x
 
     def search_nonetypes(self, traj):
         """searches for nonetype dihedral angles and returns a list of their indexes"""
 
-        selection_call = 'i.' + self.dihedral + '_selection()'
+        selection_call = "i." + self.dihedral + "_selection()"
 
         index = 0
         nonetype_list = []
@@ -211,19 +219,19 @@ class TrajectoryDihedrals(object):
         return nonetype_list
 
     def apply_angle_type(self, dihedral_array):
-        """calculates the specified angle for each residue """
+        """calculates the specified angle for each residue"""
 
-        if self.angle_type == 'mean':
+        if self.angle_type == "mean":
             angles = numpy.mean(dihedral_array, axis=1)
-        elif self.angle_type == 'min':
+        elif self.angle_type == "min":
             angles = numpy.min(dihedral_array, axis=1)
-        elif self.angle_type == 'max':
+        elif self.angle_type == "max":
             angles = numpy.max(dihedral_array, axis=1)
-        elif self.angle_type == 'median':
+        elif self.angle_type == "median":
             angles = numpy.median(dihedral_array, axis=1)
 
         return angles
-    
+
     def add_feature(self, existing_df):
 
         assert isinstance(
@@ -270,7 +278,7 @@ class TrajectoryDihedrals(object):
         new_df.reset_index(inplace=True)
         self.results.reset_index(inplace=True)
 
-        new_df.drop( 
+        new_df.drop(
             columns=[
                 "amino_acid",
             ],
@@ -285,39 +293,39 @@ class TrajectoryDihedrals(object):
 
     @staticmethod
     def _filter_frames(pdb, traj, boundary, spec_time, dt):
-        """returns trajectory with frames greater and 
+        """returns trajectory with frames greater and
         less than the specified start and end times"""
-        
-        '''times = [ts.time for ts in traj.trajectory]
-        if boundary == 'start':
-            bools = [time > spec_time for time in times]
-            u = traj.trajectory[bools]
-        if boundary == 'end':
-            bools = [time < spec_time for time in times]
-            u = traj.trajectory[bools]'''
 
-        coordinates = MDAnalysis.analysis.base.AnalysisFromFunction(lambda ag: ag.positions.copy(), 
-                            traj.atoms).run().results
+        coordinates = (
+            MDAnalysis.analysis.base.AnalysisFromFunction(
+                lambda ag: ag.positions.copy(), traj.atoms
+            )
+            .run()
+            .results
+        )
 
-        if boundary == 'start':
+        if boundary == "start":
             bools = coordinates.times < spec_time
-        elif boundary == 'end':
+        elif boundary == "end":
             bools = coordinates.times >= spec_time
         filtered_times = numpy.delete(coordinates.times, bools)
         filtered_timeseries = numpy.delete(coordinates.timeseries, bools, axis=0)
         filtered_frames = numpy.delete(coordinates.frames, bools)
-    
+
         coordinates = {
-        'timeseries': filtered_timeseries,
-        'frames': filtered_frames,
-        'times': filtered_times,
-            }
+            "timeseries": filtered_timeseries,
+            "frames": filtered_frames,
+            "times": filtered_times,
+        }
 
-        u = MDAnalysis.Universe(pdb, coordinates['timeseries'], dimensions=traj.dimensions, dt=dt,
-                                    format=MDAnalysis.coordinates.memory.MemoryReader)
-        return u  
-        
-
+        u = MDAnalysis.Universe(
+            pdb,
+            coordinates["timeseries"],
+            dimensions=traj.dimensions,
+            dt=dt,
+            format=MDAnalysis.coordinates.memory.MemoryReader,
+        )
+        return u
 
     @staticmethod
     def _add_bonds(traj):
@@ -363,4 +371,5 @@ class TrajectoryDihedrals(object):
             df["resid"] = resid_list
         return df
 
-#need to figure out way to exclude first frame + start/end times
+
+# need to figure out way to exclude first frame + start/end times
