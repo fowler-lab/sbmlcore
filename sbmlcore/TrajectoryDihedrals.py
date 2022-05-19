@@ -53,6 +53,13 @@ class TrajectoryDihedrals(object):
         assert isinstance(trajectory_list, list), "trajectories not provided as a list"
         for i in trajectory_list:
             assert pathlib.Path(i).is_file(), "File does not exist!"
+        
+        #ensure the dihedral is legal
+        assert dihedral in [
+            "phi",
+            "psi",
+            "omega"
+        ]
 
         # ensure the angle type is legal, and the distance selection name are strings
         assert angle_type in [
@@ -69,7 +76,7 @@ class TrajectoryDihedrals(object):
         # checks whether percentile_exclusion is True/False
         assert isinstance(
             percentile_exclusion, bool
-        ), "Confidence interval must be True or False"
+        ), "percentile_exclusion must be True or False"
 
         if offsets is not None:
             # ensure the offsets are specificed in a dictionary
@@ -80,12 +87,12 @@ class TrajectoryDihedrals(object):
         # ensure start and end times are legal floats
         if start_time is not None:
             assert start_time > 0
-            assert isinstance(start_time, float)
+            assert isinstance(start_time, float), "start_time must be a float"
         if end_time is not None:
             assert end_time > 0
-            assert isinstance(end_time, float)
+            assert isinstance(end_time, float), "end_time must be a float"
             if start_time is not None:
-                assert start_time < end_time
+                assert start_time < end_time, "start_ime should be less than end_time"
 
         self.dihedral = dihedral
         self.angle_type = angle_type
@@ -97,9 +104,18 @@ class TrajectoryDihedrals(object):
             u = MDAnalysis.Universe(pdb_file, trajectory)
             u_static = MDAnalysis.Universe(static_pdb)
 
-            u = TrajectoryDihedrals._filter_frames(u, start_time, end_time)
+            dt = u.trajectory[1].time - u.trajectory[0].time
 
-            residues_all = u.residues
+            if start_time is not None:
+                u = TrajectoryDihedrals._filter_frames(pdb_file, u, 'start', start_time, dt)
+                end_time = end_time - start_time
+            if end_time is not None:
+                u = TrajectoryDihedrals._filter_frames(pdb_file, u, 'end', end_time, dt)
+
+            for i in u.trajectory:
+                print (i.time)
+
+            residues_all = u.select_atoms("name CA")
 
             if add_bonds:
                 protein_res = TrajectoryDihedrals._add_bonds(u).select_atoms("protein")
@@ -146,6 +162,7 @@ class TrajectoryDihedrals(object):
 
         self.results = results
         self.angle_name = angle_name
+
 
     def calculate_dihedrals(self, trajectory, protein_res):
         """
@@ -202,7 +219,7 @@ class TrajectoryDihedrals(object):
             angles = numpy.min(dihedral_array, axis=1)
         elif self.angle_type == 'max':
             angles = numpy.max(dihedral_array, axis=1)
-        elif self.angle_type == 'mean':
+        elif self.angle_type == 'median':
             angles = numpy.median(dihedral_array, axis=1)
 
         return angles
@@ -253,7 +270,7 @@ class TrajectoryDihedrals(object):
         new_df.reset_index(inplace=True)
         self.results.reset_index(inplace=True)
 
-        new_df.drop(
+        new_df.drop( 
             columns=[
                 "amino_acid",
             ],
@@ -267,6 +284,42 @@ class TrajectoryDihedrals(object):
         return self.results
 
     @staticmethod
+    def _filter_frames(pdb, traj, boundary, spec_time, dt):
+        """returns trajectory with frames greater and 
+        less than the specified start and end times"""
+        
+        '''times = [ts.time for ts in traj.trajectory]
+        if boundary == 'start':
+            bools = [time > spec_time for time in times]
+            u = traj.trajectory[bools]
+        if boundary == 'end':
+            bools = [time < spec_time for time in times]
+            u = traj.trajectory[bools]'''
+
+        coordinates = MDAnalysis.analysis.base.AnalysisFromFunction(lambda ag: ag.positions.copy(), 
+                            traj.atoms).run().results
+
+        if boundary == 'start':
+            bools = coordinates.times < spec_time
+        elif boundary == 'end':
+            bools = coordinates.times >= spec_time
+        filtered_times = numpy.delete(coordinates.times, bools)
+        filtered_timeseries = numpy.delete(coordinates.timeseries, bools, axis=0)
+        filtered_frames = numpy.delete(coordinates.frames, bools)
+    
+        coordinates = {
+        'timeseries': filtered_timeseries,
+        'frames': filtered_frames,
+        'times': filtered_times,
+            }
+
+        u = MDAnalysis.Universe(pdb, coordinates['timeseries'], dimensions=traj.dimensions, dt=dt,
+                                    format=MDAnalysis.coordinates.memory.MemoryReader)
+        return u  
+        
+
+
+    @staticmethod
     def _add_bonds(traj):
         """add bonds to protein (only) in a trajectory"""
 
@@ -276,17 +329,6 @@ class TrajectoryDihedrals(object):
         )
         traj.add_TopologyAttr("bonds", bonds)
         return traj
-
-    @staticmethod
-    def _filter_frames(traj, start_time, end_time):
-        """returns trajectory with frames greater and 
-        less than the specified start and end times"""
-        
-        times = [ts.time for ts in traj.trajectory]
-        bools = [(time > start_time) & (time < end_time) for time in times]
-
-        u = traj.trajectory[bools]
-        return (u)
 
     @staticmethod
     def _exclude_percentiles(data):

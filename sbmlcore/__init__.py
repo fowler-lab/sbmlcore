@@ -13,6 +13,7 @@ from .ExternalCode import FreeSASA
 from .ExternalCode import SNAP2
 from .StructuralDistances import StructuralDistances
 from .TrajectoryDistances import TrajectoryDistances
+from .TrajectoryDihedrals import TrajectoryDihedrals
 from .DeepDDG import DeepDDG
 
 '''
