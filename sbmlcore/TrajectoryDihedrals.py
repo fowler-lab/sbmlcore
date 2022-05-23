@@ -100,15 +100,19 @@ class TrajectoryDihedrals(object):
             u = MDAnalysis.Universe(pdb_file, trajectory)
             u_static = MDAnalysis.Universe(static_pdb)
 
+            #calculate time step for regeneration of trajectory during frame filtering
             dt = u.trajectory[1].time - u.trajectory[0].time
 
             if start_time is not None:
                 u = TrajectoryDihedrals._filter_frames(
                     pdb_file, u, "start", start_time, dt
                 )
+                #rewriting the trajectory shifts time back to zero - therefore have to recalibrate end_time
                 end_time = end_time - start_time
             if end_time is not None:
-                u = TrajectoryDihedrals._filter_frames(pdb_file, u, "end", end_time, dt)
+                u = TrajectoryDihedrals._filter_frames(
+                    pdb_file, u, "end", end_time, dt
+                )
 
             residues_all = u.select_atoms("name CA")
 
@@ -133,7 +137,7 @@ class TrajectoryDihedrals(object):
 
         angles = self.apply_angle_type(dihedral_array)
 
-        # pull segment ids form the static pdb file
+        # pull segment ids from the static pdb file
         segids = [i for i in u_static.select_atoms("protein").residues.segids]
 
         # constructs the dictionary containihg the distances and assocaited residue labels
@@ -343,11 +347,18 @@ class TrajectoryDihedrals(object):
         """return array without 5% tails"""
         data_list = []
         for resnum in range(len(data)):
-            arr = data[resnum]
-            p5 = numpy.percentile(arr, 5)
-            p95 = numpy.percentile(arr, 95)
-            data_list.append(arr[(arr >= p5) & (arr <= p95)])
+            if data[resnum].all() == numpy.zeros(len(data[resnum])).all():
+                len_no_tails = len(data[resnum]) - (0.1 * len(data[resnum]))
+                arr = numpy.zeros(int(len_no_tails)-1)
+                data_list.append(arr)
+            else:
+                arr = data[resnum]
+                p5 = numpy.percentile(arr, 5)
+                p95 = numpy.percentile(arr, 95)
+                data_list.append(arr[(arr >= p5) & (arr <= p95)])
+
         data_arr = numpy.array(data_list)
+
         return data_arr
 
     @staticmethod
