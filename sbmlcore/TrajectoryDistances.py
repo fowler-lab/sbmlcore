@@ -41,8 +41,8 @@ class TrajectoryDistances(object):
     5th - your choice of name for the resulting distance column in the dataframe
     6th - type of distance metric that is being calculated (mean, median, max or min) (default=mean)
     7th - resid offsets for the different chains - must be a dictionary in the form {'segid': int, ...}.
-    8th - desired starting time/frame of the trajectory
-    9th - desired end time/frame of the trajectory
+    8th - desired starting time of the trajectory
+    9th - desired end time of the trajectory
     10th - if percentile_exlcusion is set to True, only data between the 5th and 9th percentile is considered (default=False)
 
     E.g. a = sbmlcore.StructuralDistances('tests/5uh6.gro',['tests/5uh6.xtc'], '5hu6.pdb', 'resname RFP', 'RFP_distance', distance_type='median', offsets = {'A': 0, 'B': 0, 'C': -6}, 'start_time=1000', 'end_time=49000', percentile_exclusion=True)

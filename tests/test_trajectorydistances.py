@@ -84,7 +84,7 @@ def test_start_time():
             "tests/3pl1.pdb",
             "resname FE",
             "dist_FE",
-            start_time=-1,
+            start_time=1,
             end_time=12.2,
         )
 
@@ -98,8 +98,8 @@ def test_end_time():
             "tests/3pl1.pdb",
             "resname FE",
             "dist_FE",
-            start_time=5,
-            end_time=2,
+            start_time=5.0,
+            end_time=7,
         )
 
     with pytest.raises(AssertionError):
@@ -109,8 +109,8 @@ def test_end_time():
             "tests/3pl1.pdb",
             "resname FE",
             "dist_FE",
-            start_time=20,
-            end_time=10,
+            start_time=20.0,
+            end_time=10.0,
         )
 
 
@@ -125,10 +125,10 @@ def test_runs():
 
 
 def test_exclude_percentiles():
-    input = numpy.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
-    expected_output = numpy.array([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+    input = numpy.array([[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]])
+    expected_output = numpy.array([[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]])
     output = sbmlcore.TrajectoryDistances._exclude_percentiles(input)
-    assert output.all() == expected_output.all()
+    numpy.testing.assert_array_equal(expected_output, output, verbose=True)
 
 
 def test_apply_offsets():
