@@ -262,14 +262,21 @@ class SNAP2(object):
             assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': 4}"
             self.offsets = offsets
         else:
-            print("offsets = None, are you sure?")
+            print("Must supply offsets, and .csv must have segids")
             self.offsets = offsets
 
         #Create dataframe from .csv file
         snap2_df = pandas.read_csv(self.csv_file)
         #print(snap2_df)
 
+        #Check offsets are correctly specified or raise KeyError
+
+        for segid in snap2_df['segid']:
+            if segid not in offsets:
+                raise KeyError('Need to specify an offset for ALL segids!')
+
         #Remove entries with less than 80% accuracy
+        #N.B. 27/05/22 Removed this feature by changing to remove less than 0%
         #Could make this into a user option instead?
         #First need to change 'Expected Accuracy' from strings to floats
         no_percentage = snap2_df['Expected Accuracy'].replace(to_replace='%', value='', regex=True)
@@ -281,7 +288,7 @@ class SNAP2(object):
         #no_percentage[series < 80].index #extracts index for each of the rows for which accuracy < 80%
 
         #Remove the entries for which the indices are specified above
-        snap2_df.drop(no_percentage[series < 80].index, inplace=True)
+        snap2_df.drop(no_percentage[series < 0].index, inplace=True)
 
         #Add offsets column and correct mutation resid column and mutated resname (i.e. the residue change resulting from the mutation)
 
@@ -290,13 +297,6 @@ class SNAP2(object):
 
         snap2_df[["mutated_to_resname", "resid"]] = snap2_df.apply(split_mutation_toresname, axis=1)
 
-        #def split_mutation(row):
-        #    m=row.Variant
-        #    return(int(m[1:-1]))
-
-        #snap2_df['resid'] = snap2_df.apply(split_mutation, axis=1)
-        #snap2_df['id'] = snap2_df['segid'] + snap2_df['resid'].astype(str)
-        #snap2_df.set_index('id', inplace=True)
 
         #Adds column for offsets
         snap2_df["chain_offsets"] = [offsets[chain] for chain in snap2_df.segid]
