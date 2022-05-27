@@ -236,7 +236,7 @@ class FreeSASA(object):
         other = other.join(b, how='left')
         other.reset_index(inplace=True)
 
-        other.drop(columns = ['index', 'resname_1', 'chain_offsets', 'resname_3', 'pdb_resid'], inplace=True)
+        other.drop(columns = ['resname_1', 'chain_offsets', 'resname_3', 'pdb_resid'], inplace=True)
 
         return(other)
 
