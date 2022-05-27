@@ -236,7 +236,7 @@ class FreeSASA(object):
         other = other.join(b, how='left')
         other.reset_index(inplace=True)
 
-        other.drop(columns = ['resname_1', 'chain_offsets', 'resname_3', 'pdb_resid'], inplace=True)
+        other.drop(columns = ['resname_1', 'chain_offsets', 'resname_3', 'pdb_resid', 'resid', 'id'], inplace=True)
 
         return(other)
 
@@ -340,5 +340,9 @@ class SNAP2(object):
         self.snap2_df.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
 
         other = other.join(self.snap2_df, how='left')
+        other.reset_index(inplace=True) #Removes multi-index
+
+        #Remove superfluous columns
+        other.drop(columns = ['mutation_resid', 'mutated_to_resname', 'Variant', 'resid', 'chain_offsets'], inplace=True)
         #print(other)
         return(other)
