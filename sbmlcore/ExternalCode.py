@@ -234,9 +234,9 @@ class FreeSASA(object):
 
         #Join SASA df to original mutation df
         other = other.join(b, how='left')
-        other.reset_index(inplace=True)
+        other.reset_index(drop=True, inplace=True)
 
-        other.drop(columns = ['resname_1', 'chain_offsets', 'resname_3', 'pdb_resid', 'resid', 'index'], inplace=True)
+        other.drop(columns = ['resname_1', 'chain_offsets', 'resname_3', 'pdb_resid', 'resid'], inplace=True)
 
         return(other)
 
