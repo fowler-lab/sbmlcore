@@ -267,7 +267,6 @@ class SNAP2(object):
 
         #Create dataframe from .csv file
         snap2_df = pandas.read_csv(self.csv_file)
-        #print(snap2_df)
 
         #Remove entries with less than 80% accuracy
         #Could make this into a user option instead?
@@ -281,7 +280,7 @@ class SNAP2(object):
         #no_percentage[series < 80].index #extracts index for each of the rows for which accuracy < 80%
 
         #Remove the entries for which the indices are specified above
-        snap2_df.drop(no_percentage[series < 80].index, inplace=True)
+        snap2_df.drop(no_percentage[series < 0].index, inplace=True)
 
         #Add offsets column and correct mutation resid column and mutated resname (i.e. the residue change resulting from the mutation)
 
@@ -338,7 +337,8 @@ class SNAP2(object):
         #Create MultiIndex using segid, resid and amino_acid
         other.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
         self.snap2_df.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
-
+        other.to_csv('DELETE_1.CSV')
+        self.snap2_df.to_csv('DELETE_2.csv')
         other = other.join(self.snap2_df, how='left')
         #print(other)
         return(other)
