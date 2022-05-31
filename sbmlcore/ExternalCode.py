@@ -86,7 +86,7 @@ class Stride(object):
 
             assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
 
-            assert set(offsets.keys()) == set(self.results.segid.unique()), 'specified segids in offsets do not match what is in the provided DeepDDG file!'
+            assert set(offsets.keys()) == set(self.results.segid.unique()), 'Specified segids in offsets do not match the pdb!'
 
             for chain in offsets:
                 assert isinstance(offsets[chain], int), "Offsets for each segid must be an integer!"
@@ -179,7 +179,7 @@ class FreeSASA(object):
         # Checks on offset specification
         if self.offsets is not None:
             for chain in self.offsets:
-                assert chain in set(other.segid), "Need to specify a segid that exists in pdb!"
+                assert chain in set(other.segid), "Must only specify the segids in the mutation dataframe! And these must also be present in the pdb."
                 assert isinstance(self.offsets[chain], int), "Offsets for each segid must be an integer!"
         else:
             pass
@@ -236,7 +236,7 @@ class FreeSASA(object):
         other = other.join(b, how='left')
         other.reset_index(inplace=True)
 
-        other.drop(columns = ['resname_1', 'chain_offsets', 'resname_3', 'pdb_resid', 'resid', 'id'], inplace=True)
+        other.drop(columns = ['resname_1', 'chain_offsets', 'resname_3', 'pdb_resid', 'resid', 'index'], inplace=True)
 
         return(other)
 
