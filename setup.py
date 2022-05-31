@@ -8,8 +8,8 @@ with open("README.md", "r") as f:
 setup(
     name='sbmlcore',
     version='0.1.0',
-    description='Infer if a non-resistant mutation is associated with a resistance mutation using Fishers Exact Test',
-    author='Philip W Fowler and Charlotte I Lynch',
+    description='Constructs core features table for the application to machine learning models',
+    author='Philip W Fowler and Charlotte I Lynch and Dylan Adlard',
     url='https://github.com/fowler-lab/sbmlcore',
     long_description = README,
     install_requires=[
