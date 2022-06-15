@@ -166,7 +166,7 @@ def test_init():
     pandas.testing.assert_frame_equal(a, b)
 
 
-def test._add_feature():
+def test_add_feature():
     # although this requires running the entire class to merge the dfs,
     # all other components of the class should have been individually tested by now
     a = {

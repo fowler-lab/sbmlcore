@@ -238,7 +238,7 @@ def test_init():
     pandas.testing.assert_frame_equal(a, b)
 
 
-def test._add_feature():
+def test_add_feature():
 
     a = {
         "segid": ["A", "A", "A", "B", "C", "C"],
