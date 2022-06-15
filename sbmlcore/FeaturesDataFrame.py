@@ -70,6 +70,6 @@ class FeatureDataset(object):
         '''
         if isinstance(other,list):
             for i in other:
-                self.df = i.add_feature(self.df)
+                self.df = i._add_feature(self.df)
         else:
-            self.df = other.add_feature(self.df)
+            self.df = other._add_feature(self.df)
