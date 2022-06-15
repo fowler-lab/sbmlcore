@@ -30,7 +30,7 @@ class FeatureDataset(object):
         ''''
         Overload the addition operator.
         '''
-        self.df = other.add_feature(self.df)
+        self.df = other._add_feature(self.df)
 
         return self
 
