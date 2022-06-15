@@ -95,7 +95,7 @@ class Stride(object):
 
 
 
-    def add_feature(self, other, feature_name='all'):
+    def _add_feature(self, other, feature_name='all'):
 
         assert isinstance(other, pandas.DataFrame)
 
@@ -162,7 +162,7 @@ class FreeSASA(object):
 #        for key in area_classes:
 #            print(key, ": %.2f A2" % area_classes[key])
 
-    def add_feature(self, other):
+    def _add_feature(self, other):
         """
         Calculates and adds the SASA for each residue to the existing mutation dataframe (other).
 
@@ -307,7 +307,7 @@ class SNAP2(object):
         self.snap2_df = snap2_df
 
 
-    def add_feature(self, other):
+    def _add_feature(self, other):
         """
         Adds distances to existing mutation dataframe, and returns new joined dataframe.
         Arguments: existing dataframe

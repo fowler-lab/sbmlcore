@@ -166,7 +166,7 @@ def test_init():
     pandas.testing.assert_frame_equal(a, b)
 
 
-def test_add_feature():
+def test._add_feature():
     # although this requires running the entire class to merge the dfs,
     # all other components of the class should have been individually tested by now
     a = {
@@ -203,6 +203,6 @@ def test_add_feature():
         percentile_exclusion=True,
     )
     test_df = pandas.read_csv("tests/5uh6_added_traj_distances.csv", index_col=0)
-    df = b.add_feature(df)
-    df = c.add_feature(df)
+    df = b._add_feature(df)
+    df = c._add_feature(df)
     pandas.testing.assert_frame_equal(test_df, df)

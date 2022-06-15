@@ -67,7 +67,7 @@ class StructuralDistances(object):
         self.distance_name = distance_name
 
 
-    def add_feature(self, other):
+    def _add_feature(self, other):
         """
         Adds distances to existing mutation dataframe, and returns new joined dataframe.
         Arguments: existing dataframe

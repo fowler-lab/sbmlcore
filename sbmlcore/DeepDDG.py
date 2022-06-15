@@ -63,7 +63,7 @@ class DeepDDG(object):
 
             self.results['resid'] = self.results.apply(update_resid, args=(offsets,), axis=1)
 
-    def add_feature(self, other):
+    def _add_feature(self, other):
 
         assert isinstance(other, pandas.DataFrame)
 

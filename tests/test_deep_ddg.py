@@ -59,7 +59,7 @@ def test_correct_offsets():
 
     a = sbmlcore.DeepDDG('tests/5uh6-protein-chains.ddg', offsets = {'A': 0, 'B': 0, 'C':-6, 'D':0, 'E':0, 'F':0})
 
-    df2 = a.add_feature(df)
+    df2 = a._add_feature(df)
 
     assert len(df2) == 12
 
@@ -80,7 +80,7 @@ def test_incorrect_offsets():
 
     a = sbmlcore.DeepDDG('tests/5uh6-protein-chains.ddg', offsets = {'A': 1, 'B': 1, 'C':0, 'D':1, 'E':1, 'F':1})
 
-    df2 = a.add_feature(df)
+    df2 = a._add_feature(df)
 
     assert len(df2) == 12
 

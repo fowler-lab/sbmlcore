@@ -238,7 +238,7 @@ def test_init():
     pandas.testing.assert_frame_equal(a, b)
 
 
-def test_add_feature():
+def test._add_feature():
 
     a = {
         "segid": ["A", "A", "A", "B", "C", "C"],
@@ -273,7 +273,7 @@ def test_add_feature():
         percentile_exclusion=True,
         end_time=40000.0,
     )
-    df = b.add_feature(df)
-    df = c.add_feature(df)
+    df = b._add_feature(df)
+    df = c._add_feature(df)
     test_df = pandas.read_csv('tests/5uh6_added_traj_angles.csv', index_col=0)
     pandas.testing.assert_frame_equal(test_df, df)

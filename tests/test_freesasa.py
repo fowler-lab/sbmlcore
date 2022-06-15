@@ -10,7 +10,7 @@ def test_freesasa_rnap():
     df = pandas.DataFrame(b)
 
     a = sbmlcore.FreeSASA('tests/5uh6.pdb', offsets = {'A': 0, 'B': 0, 'C': -6})
-    df = a.add_feature(df)
+    df = a._add_feature(df)
 
     # These should fail!
     # Loading the wrong file
@@ -24,29 +24,29 @@ def test_freesasa_rnap():
     # Incorrectly naming a segid offset with an incorrect letter
     with pytest.raises(AssertionError):
         a = sbmlcore.FreeSASA('tests/5uh6.pdb', offsets = {'A': 0, 'B': 0, 'Z': -6})
-        df = a.add_feature(df)
+        df = a._add_feature(df)
 
     # Incorrectly naming a segid offset with a lower case letter
     with pytest.raises(AssertionError):
         a = sbmlcore.FreeSASA('tests/5uh6.pdb', offsets = {'A': 0, 'B': 0, 'c': -6})
-        df = a.add_feature(df)
+        df = a._add_feature(df)
 
     # Specifying an offset value as a non-integer e.g. as a string
     with pytest.raises(AssertionError):
         a = sbmlcore.FreeSASA('tests/5uh6.pdb', offsets = {'A': 0, 'B': 0, 'C': 'c'})
-        df = a.add_feature(df)
+        df = a._add_feature(df)
 
     # Specifying the offset value as a non-integer e.g. as a float
     with pytest.raises(AssertionError):
         a = sbmlcore.FreeSASA('tests/5uh6.pdb', offsets = {'A': 0, 'B': 0, 'C': 2.3})
-        df = a.add_feature(df)
+        df = a._add_feature(df)
 
 #Tests here were for when the testing columns for chain_offsets and pdb_resid had not been dropped
 #def test_freesasa_pnca():
 #    file = sbmlcore.FreeSASA('tests/3pl1.pdb')
 #    b = {'segid': ['A', 'A', 'A'], 'mutation': ['M1D','R2K', 'A3V']}
 #    df = pandas.DataFrame.from_dict(b)
-#    sasa_df=file.add_feature(df)
+#    sasa_df=file._add_feature(df)
 
     #Check that all entries in the chain_offsets column are zeros because no offset has been specified
     #assert (sasa_df["chain_offsets"] == 0).all(), "All entries in column 'chain_offsets' should be zero as no offset has been specified!"

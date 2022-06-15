@@ -188,7 +188,7 @@ class TrajectoryDistances(object):
         self.results = results
         self.distance_name = distance_name
 
-    def add_feature(self, existing_df):
+    def _add_feature(self, existing_df):
         """
         Adds distances to existing mutation dataframe, and returns new joined dataframe.
 

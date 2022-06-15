@@ -25,16 +25,16 @@ def test_stride():
     df = pandas.DataFrame.from_dict(b)
 
     # test out individual features
-    df = a.add_feature(df, 'psi')
+    df = a._add_feature(df, 'psi')
     assert 'psi' in df.columns
 
-    df = a.add_feature(df, 'phi')
+    df = a._add_feature(df, 'phi')
     assert 'phi' in df.columns
 
     b = {'segid': ['A', 'A', 'A'], 'mutation': ['M1D','R2K', 'A3V']}
     df = pandas.DataFrame.from_dict(b)
 
     # test adding all
-    df = a.add_feature(df)
+    df = a._add_feature(df)
     assert 'psi' in df.columns
     assert 'phi' in df.columns
