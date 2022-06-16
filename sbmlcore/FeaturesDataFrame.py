@@ -14,7 +14,7 @@ class FeatureDataset(object):
         self.df = df
 
         allowed_kwargs = ['protein', 'gene', 'species', 'reference']
-         
+
         seen = set()
         for key in kwargs.keys():
             if key in allowed_kwargs:
@@ -63,7 +63,7 @@ class FeatureDataset(object):
 
     def add_feature(self, other):
         '''
-        Add the supplied smblcore Feature to this dataset.
+        Add the supplied sbmlcore Feature to this dataset.
 
         Arguments:
             sbmlcore.Feature or list of sbmlcore.Features
