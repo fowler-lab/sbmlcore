@@ -3,6 +3,21 @@ import pandas
 class FeatureDataset(object):
     '''
     Class that contains the dataset of mutations and associated features for simple machine learning.
+
+    Parameters
+    ----------
+    existing dataframe
+
+    Optional:
+    protein (str)
+    gene (str)
+    species (str)
+    reference (str)
+
+    Returns
+    -------
+    dataframe with additional feature columns
+
     '''
 
     def __init__(self, df, *args, **kwargs):

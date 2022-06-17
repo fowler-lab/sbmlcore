@@ -24,6 +24,29 @@ def wrap_angle(angle):
 
 
 class Stride(object):
+    """
+    Secondary structure and SASA prediction
+
+    Parameters
+    ----------
+    .pdb file
+    offsets - as dictionary of form {segid (str): value (int)}
+
+    Returns
+    -------
+    dataframe with additional columns for:
+    secondary_structure
+    secondary_structure_long
+    phi
+    psi
+    residue_sasa
+    B
+    C
+    E
+    G
+    H
+    T
+    """
 
     def __init__(self, PDBFile, offsets=None):
 
@@ -134,11 +157,15 @@ class FreeSASA(object):
     Uses external FreeSASA Python module to obtain the solvent accessible
     surface areas of each residue in a user-specified pdb file.
 
-    Takes one argument: path to pdb file
-    e.g. a = sbmlcore.FreeSASA('path_pdbfile').
+    Parameters
+    ----------
+    .pdb file
+    offsets - as dictionary of form {segid (str): value (int)}
 
-    Functions:
-    add_feature - adds the SASA for each residue to the existing mutation dataframe
+    Returns
+    -------
+    dataframe with additional column for SASA
+
     """
 
     def __init__(self, PDBFile, offsets=None):
@@ -165,10 +192,6 @@ class FreeSASA(object):
     def _add_feature(self, other):
         """
         Calculates and adds the SASA for each residue to the existing mutation dataframe (other).
-
-        Arguments: existing dataframe
-        e.g. if a = sbmlcore.FreeSASA('path_pdbfile'),
-        use new_df = a.add_feature(existing_df)
         """
         assert isinstance(other, pandas.DataFrame), "You must be adding the extra feature to an existing dataframe!"
 
@@ -244,9 +267,19 @@ class SNAP2(object):
     """
     Uses the .csv output file from Snap2 https://rostlab.org/services/snap2web/ which predicts the likelihood of each amino acid mutation affecting the function of the protein.
 
-    Arguments: .csv output from the SNAP2 webserver.
-            N.B. If structure contains multiple chains, each one needs to be loaded into the webserver individually, then the .csv files need to be concatenated using csv_segid_concat.ipynb and the segid for each chain correctly assigned. Only then can the SNAP2 class here be used.
-            Offsets - supplied as a dictionary for each chain.
+    Parameters
+    ----------
+     .csv output from the SNAP2 webserver
+             N.B. If structure contains multiple chains, each one needs to be loaded into the webserver individually, then the .csv files need to be concatenated using csv_segid_concat.ipynb and the segid for each chain correctly assigned. Only then can the SNAP2 class here be used.
+     offsets - as dictionary of form {segid (str): value (int)}
+
+    Returns
+    -------
+    dataframe with additional columns for:
+    Predicted Effect
+    Score
+    Expected Accuracy
+        N.B. Score is probably the only useful column so dropping the other two columns is advised.
     """
     def __init__(self, CSVFile, offsets=None):
 
@@ -310,9 +343,6 @@ class SNAP2(object):
     def _add_feature(self, other):
         """
         Adds distances to existing mutation dataframe, and returns new joined dataframe.
-        Arguments: existing dataframe
-        e.g. if a = sbmlcore.SNAP2(...),
-        use new_df = a.add_feature(existing_df)
         """
 
         assert isinstance(other, pandas.DataFrame), "You must be adding the extra feature to an existing dataframe!"
