@@ -1,3 +1,5 @@
+[![Tests](https://github.com/fowler-lab/sbmlcore/actions/workflows/tests.yaml/badge.svg)](https://github.com/fowler-lab/sbmlcore/actions/workflows/tests.yaml)
+
 # sbml-core
 Collection of core classes and functions for structure-based machine learning to predict antimicrobial resistance.
 
