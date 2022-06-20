@@ -164,7 +164,7 @@ class TrajectoryDistances(object):
             distances = numpy.median(distance_array, axis=1)
 
         # Pulls segment ids from the static pdb file
-        segids = [i for i in u_static.select_atoms("protein").residues.segids]
+        segids = [i for i in u_static.select_atoms("name CA").residues.segids]
 
         # constructs the dictionary containihg the distances and assocaited residue labels
         Ca_data = {
