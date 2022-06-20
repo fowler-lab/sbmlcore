@@ -15,7 +15,9 @@ setup(
     install_requires=[
         'pandas',
         'pytest',
-        'pytest-cov'
+        'pytest-cov',
+        'freesasa',
+        'MDAnalysis'
         ],
     packages = ['sbmlcore'],
     python_requires='>=3.8',
