@@ -1,5 +1,6 @@
 [![Tests](https://github.com/fowler-lab/sbmlcore/actions/workflows/tests.yaml/badge.svg)](https://github.com/fowler-lab/sbmlcore/actions/workflows/tests.yaml)
 [![codecov](https://codecov.io/gh/fowler-lab/sbmlcore/branch/main/graph/badge.svg?token=P44BPYQBFS)](https://codecov.io/gh/fowler-lab/sbmlcore)
+[![PyPI version](https://badge.fury.io/py/sbmlcore.svg)](https://badge.fury.io/py/sbmlcore)
 
 # sbmlcore
 Collection of core classes to help with building structure- and chemistry-based feature datasets to train machine learning models to predict antimicrobial resistance.
