@@ -367,8 +367,6 @@ class SNAP2(object):
         #Create MultiIndex using segid, resid and amino_acid
         other.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
         self.snap2_df.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
-        other.to_csv('DELETE_1.CSV')
-        self.snap2_df.to_csv('DELETE_2.csv')
         other = other.join(self.snap2_df, how='left')
         other.reset_index(inplace=True) #Removes multi-index
 
