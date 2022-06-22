@@ -44,7 +44,7 @@ class TrajectoryDihedrals(object):
     8th - resid offsets for the different chains - must be a dictionary in the form {'segid':int, ...}.
     9th - desired starting time of the trajectory
     10th - deisred end time of the trajectory
-    11th - if percentile_exclusion is set to True, only data between the 5th and 9th percentile is considered (default=False)
+    11th - if percentile_exclusion is set to True, only data between the 5th and 95th percentile is considered (default=False)
 
     E.g. a = a = sbmlcore.TrajectoryDihedrals(
         "./tests/rpob-5uh6-3-warm.gro.gz",
@@ -187,7 +187,7 @@ class TrajectoryDihedrals(object):
         # pull segment ids from the static pdb file
         segids = [i for i in u_static.select_atoms("protein").residues.segids]
 
-        # constructs the dictionary containing the distances and assocaited residue labels
+        # construct the dictionary containing the distances and assocaited residue labels
         data = {
             "segid": segids,
             "resid": residues_all.resids,
@@ -429,16 +429,17 @@ class TrajectoryDihedrals(object):
             if data[resnum].all() == numpy.zeros(len(data[resnum])).all():
                 # if the arrays is just an array of zeros, numpy can't calculate p5 nor p95 -
                 # //so we do it manually
-                arr = numpy.zeros(int(len_no_tails) - 1)
+                if (len(data[resnum]) % 2) == 0:
+                    arr = numpy.zeros(int(len_no_tails))
+                else:
+                    arr = numpy.zeros(int(len_no_tails)-1)
                 data_list.append(arr)
             else:
                 arr = data[resnum]
                 p5 = numpy.percentile(arr, 5)
                 p95 = numpy.percentile(arr, 95)
                 data_list.append(arr[(arr > p5) & (arr <= p95)])
-
         data_arr = numpy.array(data_list)
-
         return data_arr
 
     @staticmethod
