@@ -1,13 +1,12 @@
 [![Tests](https://github.com/fowler-lab/sbmlcore/actions/workflows/tests.yaml/badge.svg)](https://github.com/fowler-lab/sbmlcore/actions/workflows/tests.yaml)
 [![codecov](https://codecov.io/gh/fowler-lab/sbmlcore/branch/main/graph/badge.svg?token=P44BPYQBFS)](https://codecov.io/gh/fowler-lab/sbmlcore)
 
-# sbml-core
-Collection of core classes and functions for structure-based machine learning to predict antimicrobial resistance.
+# sbmlcore
+Collection of core classes to help with building structure- and chemistry-based feature datasets to train machine learning models to predict antimicrobial resistance.
 
 This is a pre-release alpha version - it may not be fully functional for your requirements and it is also subject to change with no notice!
 
-See notebooks walkthrough.ipynb and addition_methods_walkthrough.ipynb for
-quick user tutorials.
+We will be making a series of jupyter-notebooks demonstrating how to use the classes available [here](https://github.com/fowler-lab/sbmlcore-tutorials).
 
 ## Included features
 
