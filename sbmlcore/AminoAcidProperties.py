@@ -26,7 +26,7 @@ class AminoAcidProperty(object):
         #
         # self.dataframe[['ref_amino_acid','alt_amino_acid']] = self.dataframe.apply(find_amino_acids,axis=1)
 
-    def add_feature(self, other):
+    def _add_feature(self, other):
 
         assert isinstance(other, pandas.DataFrame)
 
@@ -51,7 +51,14 @@ class AminoAcidProperty(object):
 
 
 class AminoAcidVolumeChange(AminoAcidProperty):
-    """Change in volume (ang^3) of an amino acid site due to a mutation."""
+    """
+    Change in volume (ang^3) of an amino acid site due to a mutation.
+
+    Returns
+    -------
+    dataframe with additional column for d_volume
+
+    """
 
     def __init__(self):
 
@@ -66,10 +73,15 @@ class AminoAcidVolumeChange(AminoAcidProperty):
 
 
 class AminoAcidHydropathyChangeKyteDoolittle(AminoAcidProperty):
-    """Change in hydropathy of an amino acid site due to a mutation.
+    """
+    Change in hydropathy of an amino acid site due to a mutation.
 
     Different hydropathy/hydrophobicity scales can be used.
-    Kyte and Doolittle (1982) DOI 10.1016/0022-2836(82)90515-0;
+    Kyte and Doolittle (1982) DOI 10.1016/0022-2836(82)90515-0
+
+    Returns
+    -------
+    dataframe with additional column for d_hydropathy_KD
     """
 
     def __init__(self):
@@ -86,10 +98,15 @@ class AminoAcidHydropathyChangeKyteDoolittle(AminoAcidProperty):
 
 
 class AminoAcidHydropathyChangeWimleyWhite(AminoAcidProperty):
-    """Change in hydropathy of an amino acid site due to a mutation.
+    """
+    Change in hydropathy of an amino acid site due to a mutation.
 
     Different hydropathy/hydrophobicity scales can be used.
     Wimley White (1996) DOI 10.1038/nsb1096-842, octanol-interface scale from https://blanco.biomol.uci.edu/hydrophobicity_scales.html, Asp- Glu- His+ used.
+
+    Returns
+    -------
+    dataframe with additional column for d_hydropathy_WW
     """
 
     def __init__(self):
@@ -106,9 +123,15 @@ class AminoAcidHydropathyChangeWimleyWhite(AminoAcidProperty):
 
 
 class AminoAcidMWChange(AminoAcidProperty):
-    """Change in molecular weight (g/mol) of an amino acid site due to a mutation.
+    """
+    Change in molecular weight (g/mol) of an amino acid site due to a mutation.
 
     From: https://www.thermofisher.com/uk/en/home/references/ambion-tech-support/rna-tools-and-calculators/proteins-and-amino-acids.html
+
+    Returns
+    -------
+    dataframe with additional column for d_MW
+
     """
 
     def __init__(self):
@@ -124,9 +147,14 @@ class AminoAcidMWChange(AminoAcidProperty):
 
 
 class AminoAcidPiChange(AminoAcidProperty):
-    """Change in isoelectric point of an amino acid site due to a mutation.
+    """
+    Change in isoelectric point of an amino acid site due to a mutation.
 
     From https://www.sigmaaldrich.com/life-science/metabolomics/learning-center/amino-acid-reference-chart.html
+
+    Returns
+    -------
+    dataframe with additional column for d_Pi
     """
 
     def __init__(self):

@@ -164,7 +164,7 @@ class TrajectoryDistances(object):
             distances = numpy.median(distance_array, axis=1)
 
         # Pulls segment ids from the static pdb file
-        segids = [i for i in u_static.select_atoms("protein").residues.segids]
+        segids = [i for i in u_static.select_atoms("name CA").residues.segids]
 
         # constructs the dictionary containihg the distances and assocaited residue labels
         Ca_data = {
@@ -188,7 +188,7 @@ class TrajectoryDistances(object):
         self.results = results
         self.distance_name = distance_name
 
-    def add_feature(self, existing_df):
+    def _add_feature(self, existing_df):
         """
         Adds distances to existing mutation dataframe, and returns new joined dataframe.
 

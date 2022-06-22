@@ -10,7 +10,7 @@ def test_chain_selection():
     df = pandas.DataFrame(a)
 
     a = sbmlcore.StructuralDistances('tests/5uh6.pdb','resname ZN', 'Zn_distance', offsets = {'A': 0, 'B': 0, 'C': -6})
-    df =  a.add_feature(df)
+    df =  a._add_feature(df)
 
     # these should all fail!
 
@@ -51,9 +51,9 @@ def test_chain_selection():
     # Testing fail if half of the distance column is NaNs
     with pytest.raises(AssertionError):
         a = sbmlcore.StructuralDistances('tests/5uh6.pdb','resname MG', 'Mg_distance', offsets = {'A': 1, 'B': 0, 'C': -6})
-        df = a.add_feature(df)
+        df = a._add_feature(df)
 
     #Testing fail if more than half of the distance column is NaNs
     with pytest.raises(AssertionError):
         a = sbmlcore.StructuralDistances('tests/5uh6.pdb','resname MG', 'Mg_distance', offsets = {'A': 1, 'B': -1, 'C': -6})
-        df = a.add_feature(df)
+        df = a._add_feature(df)

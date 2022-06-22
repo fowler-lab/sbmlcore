@@ -12,17 +12,17 @@ class StructuralDistances(object):
     Class for structural distances
 
     Parameters
-    ---------
-    1st - path to pdb file
+    ----------
+    1st - pdb file
     2nd - group of atoms you want to calculate the distances to - uses MDAnalysis syntax, and distances are calculated from the centre of mass of this whole selection to each Ca in the structure
     3rd - your choice of name for the resulting distance column in the dataframe
     4th - resid offsets for the different chains - must be a dictionary in the form {'segid': int, ...}.
 
-    E.g. a = sbmlcore.StructuralDistances('tests/5uh6.pdb','resname ZN', 'Zn_distance', offsets = {'A': 0, 'B': 0, 'C': -6})
+    E.g. a = sbmlcore.StructuralDistances('tests/5uh6.pdb','resname MG', 'Mg_distance', offsets = {'A': 0, 'B': 0, 'C': -6})
 
-    Functions:
-
-    add_feature - adds distances to existing mutation dataframe, and returns new joined dataframe
+    Returns
+    -------
+    dataframe with structural distance columns (named by user)
     """
 
     def __init__(self, pdb_file, distance_selection, distance_name, offsets=None):
@@ -67,12 +67,10 @@ class StructuralDistances(object):
         self.distance_name = distance_name
 
 
-    def add_feature(self, other):
+    def _add_feature(self, other):
         """
         Adds distances to existing mutation dataframe, and returns new joined dataframe.
         Arguments: existing dataframe
-        e.g. if a = sbmlcore.StructuralDistances(...),
-        use new_df = a.add_feature(existing_df)
         """
 
         assert isinstance(other, pandas.DataFrame), "You must be adding the extra feature to an existing dataframe!"

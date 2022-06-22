@@ -15,6 +15,7 @@ from .StructuralDistances import StructuralDistances
 from .TrajectoryDistances import TrajectoryDistances
 from .TrajectoryDihedrals import TrajectoryDihedrals
 from .DeepDDG import DeepDDG
+from .FeaturesDataFrame import FeatureDataset
 
 '''
 Use of semantic versioning, MAJOR.MINOR.MAINTAINANCE where

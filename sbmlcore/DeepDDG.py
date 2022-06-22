@@ -4,6 +4,19 @@ import copy
 import pandas
 
 class DeepDDG(object):
+    """
+    Prediction of protein stability.
+
+    Parameters
+    ----------
+    .ddg file
+    offsets - as dictionary of form {segid (str): value (int)}
+
+    Returns
+    -------
+    Dataframe with protein stability as an extra column
+
+    """
 
     def __init__(self, DeepDDGFile, offsets=None):
 
@@ -63,7 +76,7 @@ class DeepDDG(object):
 
             self.results['resid'] = self.results.apply(update_resid, args=(offsets,), axis=1)
 
-    def add_feature(self, other):
+    def _add_feature(self, other):
 
         assert isinstance(other, pandas.DataFrame)
 

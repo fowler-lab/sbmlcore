@@ -294,7 +294,7 @@ class TrajectoryDihedrals(object):
 
         return angles
 
-    def add_feature(self, existing_df):
+    def _add_feature(self, existing_df):
         """
         Adds angles to existing mutation dataframe, and returns new joined dataframe.
         Arguments: existing dataframe
