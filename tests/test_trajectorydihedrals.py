@@ -126,7 +126,7 @@ def test_exclude_percentiles():
     numpy.testing.assert_array_equal(expected_output, output, verbose=True)
 
     input = numpy.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-    expected_output = numpy.array([[0, 0, 0, 0, 0, 0, 0, 0]])
+    expected_output = numpy.array([[0, 0, 0, 0, 0, 0, 0, 0, 0]])
     output = sbmlcore.TrajectoryDihedrals._exclude_percentiles(input)
     numpy.testing.assert_array_equal(expected_output, output, verbose=True)
 

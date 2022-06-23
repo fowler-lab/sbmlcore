@@ -300,7 +300,6 @@ class SNAP2(object):
 
         #Create dataframe from .csv file
         snap2_df = pandas.read_csv(self.csv_file)
-        #print(snap2_df)
 
         #Check offsets are correctly specified or raise KeyError
 
@@ -368,7 +367,6 @@ class SNAP2(object):
         #Create MultiIndex using segid, resid and amino_acid
         other.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
         self.snap2_df.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
-
         other = other.join(self.snap2_df, how='left')
         other.reset_index(inplace=True) #Removes multi-index
 
