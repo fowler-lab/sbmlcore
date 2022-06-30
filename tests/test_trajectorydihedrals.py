@@ -311,9 +311,9 @@ def test_add_feature():
     features.add_feature([b])
 
     # method 2:
-    features_df = (features+c).df
+    features_df = (features + c).df
 
-    #method 3:
+    # method 3:
     features_df = d._add_feature(features_df)
 
     test_df = pandas.read_csv("tests/3fre_added_traj_angles.csv", index_col=0)
