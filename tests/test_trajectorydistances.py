@@ -163,49 +163,65 @@ def test_init():
         percentile_exclusion=True,
     ).return_dist_df()
 
-    # b = pandas.read_csv("tes/5uh6_traj_distances.csv", index_col=0)
-
     assert a.max_TMP.sum() == pytest.approx(5120.556)
-    # pandas.testing.assert_frame_equal(a, b)
 
 
-# def test_add_feature():
-#     # although this requires running the entire class to merge the dfs,
-#     # all other components of the class should have been individually tested by now
-#     a = {
-#         "segid": ["A", "A", "A", "B", "C", "C"],
-#         "mutation": ["I3D", "S4K", "Q5V", "R6D", "S450F", "D435F"],
-#     }
-#     df = pandas.DataFrame.from_dict(a)
-#     b = sbmlcore.TrajectoryDistances(
-#         "tests/rpob-5uh6-3-warm.gro",
-#         [
-#             "tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc",
-#             "tests/rpob-5uh6-3-md-2-50ns-dt10ns-nojump.xtc",
-#             "tests/rpob-5uh6-3-md-3-50ns-dt10ns-nojump.xtc",
-#         ],
-#         "tests/5uh6.pdb",
-#         "resname RFP",
-#         "max RFP",
-#         distance_type="max",
-#         offsets={"A": 0, "B": 0, "C": -6},
-#         percentile_exclusion=True,
-#     )
-#     c = sbmlcore.TrajectoryDistances(
-#         "tests/rpob-5uh6-3-warm.gro",
-#         [
-#             "tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc",
-#             "tests/rpob-5uh6-3-md-2-50ns-dt10ns-nojump.xtc",
-#             "tests/rpob-5uh6-3-md-3-50ns-dt10ns-nojump.xtc",
-#         ],
-#         "tests/5uh6.pdb",
-#         "resname RFP",
-#         "mean RFP",
-#         distance_type="mean",
-#         offsets={"A": 0, "B": 0, "C": -6},
-#         percentile_exclusion=True,
-#     )
-#     test_df = pandas.read_csv("tests/5uh6_added_traj_distances.csv", index_col=0)
-#     df = b._add_feature(df)
-#     df = c._add_feature(df)
-#     pandas.testing.assert_frame_equal(test_df, df)
+def test_add_feature():
+    # although this requires running the entire class to merge the dfs,
+    # all other components of the class should have been individually tested by now
+    a = {
+        "segid": ["A", "A", "A", "A"],
+        "mutation": ["T1D", "L2K", "S3V", "S3F"],
+    }
+    df = pandas.DataFrame.from_dict(a)
+    features = sbmlcore.FeatureDataset(
+        df, species="S. aureus", gene="folA", protein="DHFR"
+    )
+    b = sbmlcore.TrajectoryDistances(
+        "tests/dhfr-3fre-tmp-1-1.gro",
+        [
+            "tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc",
+        ],
+        "tests/dhfr-3fre-tmp-1-1.pdb",
+        "resname NDP",
+        "max NDP",
+        distance_type="max",
+        offsets={"A": 0},
+        percentile_exclusion=True,
+    )
+    c = sbmlcore.TrajectoryDistances(
+        "tests/dhfr-3fre-tmp-1-1.gro",
+        [
+            "tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc",
+        ],
+        "tests/dhfr-3fre-tmp-1-1.pdb",
+        "resname TMP",
+        "min TMP",
+        distance_type="min",
+        offsets={"A": 0},
+        percentile_exclusion=True,
+    )
+    d = sbmlcore.TrajectoryDistances(
+        "tests/dhfr-3fre-tmp-1-1.gro",
+        [
+            "tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc",
+        ],
+        "tests/dhfr-3fre-tmp-1-1.pdb",
+        "resname NDP",
+        "mean NDP",
+        distance_type="mean",
+        offsets={"A": 0},
+        percentile_exclusion=True,
+    )
+
+    # method 1:
+    features.add_feature([b])
+
+    # method 2:
+    features_df = (features + c).df
+
+    # method 3:
+    features_df = d._add_feature(features_df)
+
+    test_df = pandas.read_csv('tests/3fre_added_traj_distances.csv', index_col=0)
+    pandas.testing.assert_frame_equal(test_df, features_df)
