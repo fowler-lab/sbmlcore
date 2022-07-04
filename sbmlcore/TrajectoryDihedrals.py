@@ -425,14 +425,13 @@ class TrajectoryDihedrals(object):
         data_list = []
         for resnum in range(len(data)):
             # calculate the expected length of an array after the tailes have been removed
-            len_no_tails = len(data[resnum]) - (0.1 * len(data[resnum]))
             if data[resnum].all() == numpy.zeros(len(data[resnum])).all():
+                dummy_arr = numpy.array([i for i in range(1, len(data[resnum])+1)])
                 # if the arrays is just an array of zeros, numpy can't calculate p5 nor p95 -
                 # //so we do it manually
-                if (len(data[resnum]) % 2) == 0:
-                    arr = numpy.zeros(int(len_no_tails))
-                else:
-                    arr = numpy.zeros(int(len_no_tails)-1)
+                p5, p95 = numpy.percentile(dummy_arr, 5), numpy.percentile(dummy_arr, 95)
+                len_no_tails = len(dummy_arr[(dummy_arr > p5) & (dummy_arr <= p95)])
+                arr = numpy.zeros(int(len_no_tails))
                 data_list.append(arr)
             else:
                 arr = data[resnum]

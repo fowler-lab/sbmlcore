@@ -12,8 +12,8 @@ def test_missing_file():
             "tests/dhfr-3fre-tmp-1-1.gro",
             "tests/missing.xtc",
             "tests/dhfr-3fre-tmp-1-1.pdb",
-            "psi", 
-            "mean_psi"
+            "psi",
+            "mean_psi",
         )
 
     with pytest.raises(AssertionError):
@@ -21,8 +21,8 @@ def test_missing_file():
             "tests/dhfr-3fre-tmp-1-1.gro",
             ["tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc"],
             "tests/missing.pdb",
-            "psi", 
-            "mean_psi"
+            "psi",
+            "mean_psi",
         )
 
     with pytest.raises(AssertionError):
@@ -30,8 +30,8 @@ def test_missing_file():
             "tests/missing.gro",
             ["tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc"],
             "tests/dhfr-3fre-tmp-1-1.pdb",
-            "psi", 
-            "mean_psi"
+            "psi",
+            "mean_psi",
         )
 
 
@@ -79,8 +79,8 @@ def test_not_list():
             "tests/dhfr-3fre-tmp-1-1.gro",
             "tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc",
             "tests/dhfr-3fre-tmp-1-1.pdb",
-            "psi", 
-            "mean_psi"
+            "psi",
+            "mean_psi",
         )
 
 
@@ -126,7 +126,7 @@ def test_exclude_percentiles():
     numpy.testing.assert_array_equal(expected_output, output, verbose=True)
 
     input = numpy.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-    expected_output = numpy.array([[0, 0, 0, 0, 0, 0, 0, 0, 0]])
+    expected_output = numpy.array([[0, 0, 0, 0, 0, 0, 0, 0]])
     output = sbmlcore.TrajectoryDihedrals._exclude_percentiles(input)
     numpy.testing.assert_array_equal(expected_output, output, verbose=True)
 
@@ -147,42 +147,42 @@ def test_apply_offsets():
     pandas.testing.assert_frame_equal(output, expected_output)
 
 
-# def test_filter_frames():
+def test_filter_frames():
 
+    u = MDAnalysis.Universe(
+        "tests/dhfr-3fre-tmp-1-1.gro", "tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc"
+    )
+    dt = u.trajectory[1].time - u.trajectory[0].time
+    ut = sbmlcore.TrajectoryDihedrals._filter_frames(
+        "tests/dhfr-3fre-tmp-1-1.gro", u, "start", 2000, dt
+    )
+    test_coordinates = (
+        MDAnalysis.analysis.base.AnalysisFromFunction(
+            lambda ag: ag.positions.copy(), ut.atoms
+        )
+        .run()
+        .results
+    )
+    test_coordinates = pandas.DataFrame.from_dict(test_coordinates.timeseries[0])
+    expected_coordinates = pandas.read_csv(
+        "tests/test_start_coordinates_frame0.csv", index_col=0
+    )
+    expected_coordinates.rename(columns={"0": 0, "1": 1, "2": 2}, inplace=True)
+    pandas.testing.assert_frame_equal(
+        test_coordinates, expected_coordinates.astype("float32")
+    )
 
-#     u = MDAnalysis.Universe(
-#         "tests/rpob-5uh6-3-warm.gro.gz", 
-#         "tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc"
-#     )
-#     dt = u.trajectory[1].time - u.trajectory[0].time
-#     ut = sbmlcore.TrajectoryDihedrals._filter_frames(
-#         "tests/rpob-5uh6-3-warm.gro.gz", u, "start", 20000, dt
-#     )
-#     test_coordinates = (
-#         MDAnalysis.analysis.base.AnalysisFromFunction(
-#             lambda ag: ag.positions.copy(), ut.atoms
-#         )
-#         .run()
-#         .results
-#     )
-#     test_coordinates = pandas.DataFrame.from_dict(test_coordinates.timeseries[0])
-#     expected_coordinates = pandas.read_csv(
-#         "tests/test_start_coordinates_frame0.csv", index_col=0
-#     )
-#     expected_coordinates.rename(columns={'0':0, '1':1, "2":2}, inplace=True)
-#     pandas.testing.assert_frame_equal(test_coordinates, expected_coordinates.astype('float32'))
-
-#     ut = sbmlcore.TrajectoryDihedrals._filter_frames(
-#         "tests/rpob-5uh6-3-warm.gro.gz", u, "end", 30000, dt
-#     )
-#     test_coordinates = (
-#         MDAnalysis.analysis.base.AnalysisFromFunction(
-#             lambda ag: ag.positions.copy(), ut.atoms
-#         )
-#         .run()
-#         .results
-#     )
-#     assert len(test_coordinates.timeseries) == 3
+    ut = sbmlcore.TrajectoryDihedrals._filter_frames(
+        "tests/dhfr-3fre-tmp-1-1.gro", u, "end", 8000, dt
+    )
+    test_coordinates = (
+        MDAnalysis.analysis.base.AnalysisFromFunction(
+            lambda ag: ag.positions.copy(), ut.atoms
+        )
+        .run()
+        .results
+    )
+    assert len(test_coordinates.timeseries) == 8
 
 
 def test_apply_angle_type():
@@ -201,98 +201,120 @@ def test_apply_angle_type():
     numpy.testing.assert_array_equal(expected_output, output, verbose=True)
 
 
-# def test_search_nonetypes():
+def test_search_nonetypes():
 
-#     u = MDAnalysis.Universe(
-#         "tests/rpob-5uh6-3-warm.gro.gz", 
-#         "tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc"
-#     )
-#     instantiated_class = sbmlcore.TrajectoryDihedrals(
-#         "tests/dhfr-3fre-tmp-1-1.gro",
-#         ["tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc"],
-#         "tests/dhfr-3fre-tmp-1-1.pdb",
-#         "phi",
-#         "phi",
-#     )
-#     assert instantiated_class.search_nonetypes(u) == [0, 1575]
-
-
-# def test_calculate_dihedrals():
-
-#     u = MDAnalysis.Universe(
-#         "tests/rpob-5uh6-3-warm.gro.gz", "tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc"
-#     )
-#     instantiated_class = sbmlcore.TrajectoryDihedrals(
-#         "tests/rpob-5uh6-3-warm.gro.gz",
-#         ["tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc"],
-#         "tests/5uh6.pdb",
-#         "phi",
-#         "phi",
-#     )
-#     protein_res = u.select_atoms("protein")
-#     expected_output = pandas.read_csv("tests/test_dihedrals.csv", index_col=0)
-#     expected_output.columns = expected_output.columns.astype(int)
-#     output = instantiated_class.calculate_dihedrals(u, protein_res)
-#     output = pandas.DataFrame(output)
-#     pandas.testing.assert_frame_equal(output, expected_output.astype('float64'))
+    u = MDAnalysis.Universe(
+        "tests/dhfr-3fre-tmp-1-1.gro", "tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc"
+    )
+    instantiated_class = sbmlcore.TrajectoryDihedrals(
+        "tests/dhfr-3fre-tmp-1-1.gro",
+        ["tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc"],
+        "tests/dhfr-3fre-tmp-1-1.pdb",
+        "psi",
+        "psi",
+    )
+    assert instantiated_class.search_nonetypes(u) == [156]
 
 
-# def test_init():
-#     a = sbmlcore.TrajectoryDihedrals(
-#         "tests/dhfr-3fre-tmp-1-1.gro",
-#         [
-#             "tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc",
-#             "tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc"
-#         ],
-#         "tests/dhfr-3fre-tmp-1-1.pdb",
-#         "phi",
-#         "phi",
-#         angle_type="max",
-#         offsets={"A": 0},
-#         percentile_exclusion=True,
-#         start_time=100.0,
-#         end_time=400.0,
-#     ).return_angle_df()
-#     b = pandas.read_csv("tests/5uh6_traj_angles.csv", index_col=0)
-#     pandas.testing.assert_frame_equal(a, b)
+def test_calculate_dihedrals():
+
+    u = MDAnalysis.Universe(
+        "tests/dhfr-3fre-tmp-1-1.gro", "tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc"
+    )
+    instantiated_class = sbmlcore.TrajectoryDihedrals(
+        "tests/dhfr-3fre-tmp-1-1.gro",
+        ["tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc"],
+        "tests/dhfr-3fre-tmp-1-1.pdb",
+        "phi",
+        "phi",
+    )
+    protein_res = u.select_atoms("protein")
+    output = instantiated_class.calculate_dihedrals(u, protein_res)
+    output = pandas.DataFrame(output)
+    expected_output = pandas.read_csv("tests/test_dihedrals.csv", index_col=0)
+    expected_output.columns = expected_output.columns.astype(int)
+
+    pandas.testing.assert_frame_equal(output, expected_output.astype("float64"))
 
 
-# def test_add_feature():
+def test_init():
+    a = sbmlcore.TrajectoryDihedrals(
+        "tests/dhfr-3fre-tmp-1-1.gro",
+        [
+            "tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc",
+        ],
+        "tests/dhfr-3fre-tmp-1-1.pdb",
+        "phi",
+        "phi",
+        angle_type="max",
+        offsets={"A": 0},
+        percentile_exclusion=True,
+        start_time=2000.0,
+        end_time=8000.0,
+    ).return_angle_df()
+    b = pandas.read_csv("tests/3fre_traj_angles.csv", index_col=0)
+    pandas.testing.assert_frame_equal(a, b)
 
-#     a = {
-#         "segid": ["A", "A", "A", "B", "C", "C"],
-#         "mutation": ["I3D", "S4K", "Q5V", "R6D", "S450F", "D435F"],
-#     }
-#     df = pandas.DataFrame.from_dict(a)
-#     b = sbmlcore.TrajectoryDihedrals(
-#         "tests/rpob-5uh6-3-warm.gro.gz",
-#         [
-#             "tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc",
-#             "tests/rpob-5uh6-3-md-2-50ns-dt10ns-nojump.xtc",
-#         ],
-#         "tests/5uh6.pdb",
-#         "psi",
-#         "max psi",
-#         angle_type="max",
-#         offsets={"A": 0, "B": 0, "C": -6},
-#         percentile_exclusion=True,
-#         end_time=40000.0,
-#     )
-#     c = sbmlcore.TrajectoryDihedrals(
-#         "tests/rpob-5uh6-3-warm.gro.gz",
-#         [
-#             "tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc",
-#             "tests/rpob-5uh6-3-md-2-50ns-dt10ns-nojump.xtc",
-#         ],
-#         "tests/5uh6.pdb",
-#         "omega",
-#         "min omega",
-#         angle_type="min",
-#         offsets={"A": 0, "B": 0, "C": -6},
-#         percentile_exclusion=True,
-#         end_time=40000.0,
-#     )
-#     df = b._add_feature(df)
-#     df = c._add_feature(df)
-#     test_df = pandas.read_csv('tests/5uh6_added_traj_angles.csv', index_col=0)
-#     pandas.testing.assert_frame_equal(test_df, df)
+
+def test_add_feature():
+
+    a = {
+        "segid": ["A", "A", "A", "A"],
+        "mutation": ["T1D", "L2K", "S3V", "S3F"],
+    }
+    df = pandas.DataFrame.from_dict(a)
+    features = sbmlcore.FeatureDataset(
+        df, species="S. aureus", gene="folA", protein="DHFR"
+    )
+    b = sbmlcore.TrajectoryDihedrals(
+        "tests/dhfr-3fre-tmp-1-1.gro",
+        [
+            "tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc",
+        ],
+        "tests/dhfr-3fre-tmp-1-1.pdb",
+        "psi",
+        "max psi",
+        angle_type="max",
+        offsets={"A": 0},
+        percentile_exclusion=True,
+        end_time=8000.0,
+    )
+    c = sbmlcore.TrajectoryDihedrals(
+        "tests/dhfr-3fre-tmp-1-1.gro",
+        [
+            "tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc",
+        ],
+        "tests/dhfr-3fre-tmp-1-1.pdb",
+        "omega",
+        "min omega",
+        angle_type="min",
+        offsets={"A": 0},
+        percentile_exclusion=True,
+        end_time=8000.0,
+    )
+
+    d = sbmlcore.TrajectoryDihedrals(
+        "tests/dhfr-3fre-tmp-1-1.gro",
+        [
+            "tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc",
+        ],
+        "tests/dhfr-3fre-tmp-1-1.pdb",
+        "phi",
+        "mean phi",
+        angle_type="mean",
+        offsets={"A": 0},
+        percentile_exclusion=True,
+        end_time=8000.0,
+    )
+
+    # method 1:
+    features.add_feature([b])
+
+    # method 2:
+    features_df = (features + c).df
+
+    # method 3:
+    features_df = d._add_feature(features_df)
+
+    test_df = pandas.read_csv("tests/3fre_added_traj_angles.csv", index_col=0)
+    pandas.testing.assert_frame_equal(test_df, features_df)
