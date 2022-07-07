@@ -4,29 +4,7 @@ import pandas
 import numpy
 import MDAnalysis
 from MDAnalysis.analysis.dihedrals import Dihedral
-
-amino_acid_3to1letter = {
-    "CYS": "C",
-    "ASP": "D",
-    "SER": "S",
-    "GLN": "Q",
-    "LYS": "K",
-    "ILE": "I",
-    "PRO": "P",
-    "THR": "T",
-    "PHE": "F",
-    "ASN": "N",
-    "GLY": "G",
-    "HIS": "H",
-    "LEU": "L",
-    "ARG": "R",
-    "TRP": "W",
-    "ALA": "A",
-    "VAL": "V",
-    "GLU": "E",
-    "TYR": "Y",
-    "MET": "M",
-}
+import sbmlcore
 
 
 class TrajectoryDihedrals(object):
@@ -196,7 +174,7 @@ class TrajectoryDihedrals(object):
         }
 
         def one_letter(row):
-            return amino_acid_3to1letter[row.resname]
+            return sbmlcore.amino_acid_3to1letter[row.resname]
 
         results = pandas.DataFrame(data)
         results["amino_acid"] = results.apply(one_letter, axis=1)

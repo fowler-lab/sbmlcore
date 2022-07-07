@@ -4,6 +4,8 @@ import subprocess
 
 import pandas
 import freesasa
+import sbmlcore
+
 # unsure whether to try and do a base class
 
 # class ExternalCode(object):
@@ -11,10 +13,6 @@ import freesasa
 #     def __init__(self, PBBFile):
 #
 
-amino_acid_3to1letter = {'CYS': 'C', 'ASP': 'D', 'SER': 'S', 'GLN': 'Q', 'LYS': 'K',
-     'ILE': 'I', 'PRO': 'P', 'THR': 'T', 'PHE': 'F', 'ASN': 'N',
-     'GLY': 'G', 'HIS': 'H', 'LEU': 'L', 'ARG': 'R', 'TRP': 'W',
-     'ALA': 'A', 'VAL':'V', 'GLU': 'E', 'TYR': 'Y', 'MET': 'M'}
 
 def wrap_angle(angle):
     angle =  angle % 360
@@ -77,7 +75,7 @@ class Stride(object):
                                                        'residue_sasa', 'pdb_code'])
 
         def short_amino_acid(row):
-            return amino_acid_3to1letter[row.resname]
+            return sbmlcore.amino_acid_3to1letter[row.resname]
 
         self.results['amino_acid'] = self.results.apply(short_amino_acid, axis=1)
 
@@ -231,12 +229,8 @@ class FreeSASA(object):
             other["chain_offsets"] = 0
 
         #Add three letter amino acid to mutation dataframe (needed for FreeSASA input)
-        amino_acid_onetothreeletter = {'C': 'CYS', 'D': 'ASP', 'S': 'SER', 'Q': 'GLN', 'K': 'LYS',
-        'I': 'ILE', 'P': 'PRO', 'T': 'THR', 'F': 'PHE', 'N': 'ASN',
-        'G': 'GLY', 'H': 'HIS', 'L': 'LEU', 'R': 'ARG', 'W': 'TRP',
-        'A': 'ALA', 'V': 'VAL', 'E': 'GLU', 'Y': 'TYR', 'M': 'MET'}
 
-        other["resname_3"] = [amino_acid_onetothreeletter[resname] for resname in other.resname_1]
+        other["resname_3"] = [sbmlcore.amino_acid_1to3letter[resname] for resname in other.resname_1]
 
         #Adds column for pdb resids (i.e. the resid as given in the pdb which may not be the same as in the mutation df)
         #N.B. Specify the offsets in the same way as you did for structural features class!

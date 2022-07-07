@@ -3,29 +3,8 @@ import pathlib
 import pandas
 import numpy
 import MDAnalysis
+import sbmlcore
 
-amino_acid_3to1letter = {
-    "CYS": "C",
-    "ASP": "D",
-    "SER": "S",
-    "GLN": "Q",
-    "LYS": "K",
-    "ILE": "I",
-    "PRO": "P",
-    "THR": "T",
-    "PHE": "F",
-    "ASN": "N",
-    "GLY": "G",
-    "HIS": "H",
-    "LEU": "L",
-    "ARG": "R",
-    "TRP": "W",
-    "ALA": "A",
-    "VAL": "V",
-    "GLU": "E",
-    "TYR": "Y",
-    "MET": "M",
-}
 
 
 class TrajectoryDistances(object):
@@ -175,7 +154,7 @@ class TrajectoryDistances(object):
         }
 
         def one_letter(row):
-            return amino_acid_3to1letter[row.resname]
+            return sbmlcore.amino_acid_3to1letter[row.resname]
 
         results = pandas.DataFrame(Ca_data)
         results["amino_acid"] = results.apply(one_letter, axis=1)

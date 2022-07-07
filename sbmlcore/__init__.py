@@ -8,6 +8,9 @@ from .AminoAcidProperties import AminoAcidHydropathyChangeWimleyWhite
 from .AminoAcidProperties import AminoAcidMWChange
 from .AminoAcidProperties import AminoAcidPiChange
 
+from .Misc import amino_acid_3to1letter
+from .Misc import amino_acid_1to3letter
+
 from .ExternalCode import Stride
 from .ExternalCode import FreeSASA
 from .ExternalCode import SNAP2
