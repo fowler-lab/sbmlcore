@@ -206,7 +206,7 @@ class FreeSASA(object):
             pass
 
 
-    #Split mutation df to create new index in form of segid-resid from mutation
+        # Split mutation df to create new index in form of segid-resid from mutation
         def split_mutation(row):
             m=row.mutation
             return(int(m[1:-1]))
@@ -215,41 +215,41 @@ class FreeSASA(object):
         other['id'] = other['segid'] + other['resid'].astype(str)
         other.set_index('id', inplace=True)
 
-    #Create single letter resname column for mutation dataframe
+        # Create single letter resname column for mutation dataframe
         def resname_1(row):
             m=row.mutation
             return(str(m[0:1]))
 
         other['resname_1'] = other.apply(resname_1, axis=1)
 
-        #Adds offsets to mutation dataframe
+        # Adds offsets to mutation dataframe
         if self.offsets is not None:
             other["chain_offsets"] = [self.offsets[chain] for chain in other.segid]
         else:
             other["chain_offsets"] = 0
 
-        #Add three letter amino acid to mutation dataframe (needed for FreeSASA input)
+        # Add three letter amino acid to mutation dataframe (needed for FreeSASA input)
 
         other["resname_3"] = [sbmlcore.amino_acid_1to3letter[resname] for resname in other.resname_1]
 
-        #Adds column for pdb resids (i.e. the resid as given in the pdb which may not be the same as in the mutation df)
-        #N.B. Specify the offsets in the same way as you did for structural features class!
+        # Adds column for pdb resids (i.e. the resid as given in the pdb which may not be the same as in the mutation df)
+        # N.B. Specify the offsets in the same way as you did for structural features class!
         other["pdb_resid"] = other["resid"] - other["chain_offsets"]
 
-        #Creates correct text input for FreeSASA - N.B. includes offsets in  pdb_resid i.e. these new resids should be the same as in the pdb (not the mutation dataframe)
+        # Creates correct text input for FreeSASA - N.B. includes offsets in  pdb_resid i.e. these new resids should be the same as in the pdb (not the mutation dataframe)
         sele_text = ["%s%i, resi %i and chain %s and resn %s" % (k,i,j,k,l) for i,j,k,l in zip(other.resid, other.pdb_resid, other.segid, other.resname_3)]
 
-        #sele_text = ["%s%i, resi %i and chain %s" % (j,i,i,j) for i,j in zip(other.resid, other.segid)]
+        # sele_text = ["%s%i, resi %i and chain %s" % (j,i,i,j) for i,j in zip(other.resid, other.segid)]
 
-        #Obtain SASAs for each residue
+        # Obtain SASAs for each residue
         structure = freesasa.Structure(self.pdb_file)
         values = freesasa.calc(structure)
         results = freesasa.selectArea(sele_text, structure, values)
         s = pandas.Series(results)
         b = pandas.DataFrame(s, columns=['SASA'])
-        #print(b)
+        # print(b)
 
-        #Join SASA df to original mutation df
+        # Join SASA df to original mutation df
         other = other.join(b, how='left')
         other.reset_index(drop=True, inplace=True)
 
