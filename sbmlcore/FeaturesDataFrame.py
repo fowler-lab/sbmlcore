@@ -4,19 +4,12 @@ class FeatureDataset(object):
     '''
     Class that contains the dataset of mutations and associated features for simple machine learning.
 
-    Parameters
-    ----------
-    existing dataframe
-
-    Optional:
-    protein (str)
-    gene (str)
-    species (str)
-    reference (str)
-
-    Returns
-    -------
-    dataframe with additional feature columns
+    Args:
+        dataframe (pandas.DataFrame) 
+        protein (str, optional): protein name
+        gene (str, optional): gene name
+        species (str, optional): species
+        reference (str)
 
     '''
 
@@ -43,7 +36,7 @@ class FeatureDataset(object):
 
     def __add__(self, other):
         ''''
-        Overload the addition operator.
+        Overload the addition operator to allow sbml Features to be added.
         '''
         self.df = other._add_feature(self.df)
 
@@ -51,10 +44,7 @@ class FeatureDataset(object):
 
     def __repr__(self):
         '''
-        Overload the print function to write a summary of this Features dataset.
-
-        Returns:
-            str: String describing the Features dataset
+        Print a summary of this Features dataset to STDOUT.
         '''
         output = ''
         if self.species is not None:
@@ -80,7 +70,7 @@ class FeatureDataset(object):
         '''
         Add the supplied sbmlcore Feature to this dataset.
 
-        Arguments:
+        Args:
             sbmlcore.Feature or list of sbmlcore.Features
         '''
         if isinstance(other,list):

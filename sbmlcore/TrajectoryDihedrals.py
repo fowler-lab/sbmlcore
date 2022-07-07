@@ -47,16 +47,16 @@ class TrajectoryDihedrals(object):
     11th - if percentile_exclusion is set to True, only data between the 5th and 95th percentile is considered (default=False)
 
     E.g. a = a = sbmlcore.TrajectoryDihedrals(
-        "./tests/rpob-5uh6-3-warm.gro.gz",
+        "./tests/dhfr-3fre-tmp-1-1.gro",
         [
-            "./tests/rpob-5uh6-3-md-1-50ns-dt10ns-nojump.xtc",
+            "./tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc",
         ],
-        "./tests/5uh6.pdb",
+        "./tests/dhfr-3fre-tmp-1-1.pdb",
         "phi",
         "mean_phi",
         angle_type="mean",
         add_bonds=True,
-        offsets = {'A': 0, 'B': 0, 'C': -6},
+        offsets = {'A': 0},
         percentile_exclusion=True
         )
 
