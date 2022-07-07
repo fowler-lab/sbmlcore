@@ -50,7 +50,6 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pytest --exitfirst --verbose \
-        --cov . 
-
-    
+        pytest --exitfirst --verbose --failed-first \
+        --cov=. --cov-report html
+      
