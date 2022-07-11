@@ -23,27 +23,12 @@ def wrap_angle(angle):
 
 class Stride(object):
     """
-    Secondary structure and SASA prediction
+    Prediction of secondary structure, SASA and backbone dihedral angles using STRIDE
 
-    Parameters
-    ----------
-    .pdb file
-    offsets - as dictionary of form {segid (str): value (int)}
-
-    Returns
-    -------
-    dataframe with additional columns for:
-    secondary_structure
-    secondary_structure_long
-    phi
-    psi
-    residue_sasa
-    B
-    C
-    E
-    G
-    H
-    T
+    Args:
+        PDBFile (file): Protein Databank file containing protein coordinates
+        offsets (dict): dictionary of form {segid (str): value (int)} where value is 
+                the numerical offset between the genetic sequence and the PDB
     """
 
     def __init__(self, PDBFile, offsets=None):
@@ -115,7 +100,6 @@ class Stride(object):
             self.results['resid'] = self.results.apply(update_resid, args=(offsets,), axis=1)
 
 
-
     def _add_feature(self, other, feature_name='all'):
 
         assert isinstance(other, pandas.DataFrame)
@@ -152,18 +136,16 @@ class Stride(object):
 
 class FreeSASA(object):
     """
-    Uses external FreeSASA Python module to obtain the solvent accessible
-    surface areas of each residue in a user-specified pdb file.
+    The Solvent Accessible Surface Area (SASA) information for each amino acid in a protein. 
 
-    Parameters
-    ----------
-    .pdb file
-    offsets - as dictionary of form {segid (str): value (int)}
+    Notes:
+        Uses the external FreeSASA Python module to obtain the solvent accessible
+        surface areas of each residue in a user-specified pdb file.
 
-    Returns
-    -------
-    dataframe with additional column for SASA
-
+    Args:
+        PDBFile (file): path to a Protein Databank file containing protein coordinates
+        offsets (dict): dictionary of form {segid (str): value (int)} where value is 
+                        the numerical offset between the genetic sequence and the PDB
     """
 
     def __init__(self, PDBFile, offsets=None):
@@ -191,6 +173,7 @@ class FreeSASA(object):
         """
         Calculates and adds the SASA for each residue to the existing mutation dataframe (other).
         """
+
         assert isinstance(other, pandas.DataFrame), "You must be adding the extra feature to an existing dataframe!"
 
         assert 'mutation' in other.columns, "Passed dataframe must contain a column called mutation"
@@ -257,24 +240,24 @@ class FreeSASA(object):
 
         return(other)
 
+
 class SNAP2(object):
     """
-    Uses the .csv output file from Snap2 https://rostlab.org/services/snap2web/ which predicts the likelihood of each amino acid mutation affecting the function of the protein.
+    Likelihood of each amino acid mutation affecting the function of the protein.
 
-    Parameters
-    ----------
-     .csv output from the SNAP2 webserver
-             N.B. If structure contains multiple chains, each one needs to be loaded into the webserver individually, then the .csv files need to be concatenated using csv_segid_concat.ipynb and the segid for each chain correctly assigned. Only then can the SNAP2 class here be used.
-     offsets - as dictionary of form {segid (str): value (int)}
+    Notes:
+        Uses the .csv output file from Snap2 https://rostlab.org/services/snap2web/
+        If structure contains multiple chains, each one needs to be loaded into the 
+        webserver individually, then the .csv files need to be concatenated using 
+        csv_segid_concat.ipynb and the segid for each chain correctly assigned. 
+        Only then can the SNAP2 class here be used.
 
-    Returns
-    -------
-    dataframe with additional columns for:
-    Predicted Effect
-    Score
-    Expected Accuracy
-        N.B. Score is probably the only useful column so dropping the other two columns is advised.
+    Args:
+        CSVFile (.csv file): file output from the SNAP2 webserver
+        offsets (dict): dictionary of form {segid (str): value (int)} where value is 
+                        the numerical offset between the genetic sequence and the PDB
     """
+
     def __init__(self, CSVFile, offsets=None):
 
         if not pathlib.Path(CSVFile).is_file():
@@ -292,31 +275,31 @@ class SNAP2(object):
             print("Must supply offsets, and .csv must have segids")
             self.offsets = offsets
 
-        #Create dataframe from .csv file
+        # create dataframe from .csv file
         snap2_df = pandas.read_csv(self.csv_file)
 
-        #Check offsets are correctly specified or raise KeyError
+        # check offsets are correctly specified or raise KeyError
 
         for segid in snap2_df['segid']:
             if segid not in offsets:
                 raise KeyError('Need to specify an offset for ALL segids!')
 
-        #Remove entries with less than 80% accuracy
-        #N.B. 27/05/22 Removed this feature by changing to remove less than 0%
-        #Could make this into a user option instead?
-        #First need to change 'Expected Accuracy' from strings to floats
+        # remove entries with less than 80% accuracy
+        # N.B. 27/05/22 Removed this feature by changing to remove less than 0%
+        # could make this into a user option instead?
+        # first need to change 'Expected Accuracy' from strings to floats
         no_percentage = snap2_df['Expected Accuracy'].replace(to_replace='%', value='', regex=True)
 
-        #Turn str into int64 so that inequalities can be used
+        # turn str into int64 so that inequalities can be used
         series = pandas.to_numeric(no_percentage)
 
-        #no_percentage[ series < 80 ] #creates series with only those rows for which accuracy < 80%
-        #no_percentage[series < 80].index #extracts index for each of the rows for which accuracy < 80%
+        # no_percentage[ series < 80 ] #creates series with only those rows for which accuracy < 80%
+        # no_percentage[series < 80].index #extracts index for each of the rows for which accuracy < 80%
 
-        #Remove the entries for which the indices are specified above
+        # remove the entries for which the indices are specified above
         snap2_df.drop(no_percentage[series < 0].index, inplace=True)
 
-        #Add offsets column and correct mutation resid column and mutated resname (i.e. the residue change resulting from the mutation)
+        # add offsets column and correct mutation resid column and mutated resname (i.e. the residue change resulting from the mutation)
 
         def split_mutation_toresname(row):
             return pandas.Series([row.Variant[-1], int(row.Variant[1:-1])])
@@ -324,10 +307,10 @@ class SNAP2(object):
         snap2_df[["mutated_to_resname", "resid"]] = snap2_df.apply(split_mutation_toresname, axis=1)
 
 
-        #Adds column for offsets
+        # adds column for offsets
         snap2_df["chain_offsets"] = [offsets[chain] for chain in snap2_df.segid]
 
-        #Applies offsets - adds them, as is also the case for Structural Features
+        # applies offsets - adds them, as is also the case for Structural Features
         snap2_df["mutation_resid"] = snap2_df["resid"] + snap2_df["chain_offsets"]
 
         self.snap2_df = snap2_df
@@ -335,7 +318,7 @@ class SNAP2(object):
 
     def _add_feature(self, other):
         """
-        Adds distances to existing mutation dataframe, and returns new joined dataframe.
+        Private method to add distances to existing mutation dataframe
         """
 
         assert isinstance(other, pandas.DataFrame), "You must be adding the extra feature to an existing dataframe!"
@@ -346,25 +329,25 @@ class SNAP2(object):
 
         assert 'segid' in other.columns, "Passed dataframe must contain a column called segid containing chain information e.g. A"
 
-        # Identifies the original one letter resname and resid (consistent with offset) so that the new feature can be subsequently linked to these
+        # identifies the original one letter resname and resid (consistent with offset) so that the new feature can be subsequently linked to these
         #def split_mutation(row):
         #    return pandas.Series([row.mutation[0], int(row.mutation[1:-1])])
 
         #other[['amino_acid', 'mutation_resid']] = other.apply(split_mutation, axis=1)
 
-        #Add column for mutated_to_resname into original mutation df (i.e. the residue change as a result of the mutation) and the mutation resid so that the new feature can subsequently be linked to these
+        # add column for mutated_to_resname into original mutation df (i.e. the residue change as a result of the mutation) and the mutation resid so that the new feature can subsequently be linked to these
         def split_mutation_toresname(row):
             return pandas.Series([row.mutation[-1], int(row.mutation[1:-1])])
 
         other[['mutated_to_resname', 'mutation_resid']] = other.apply(split_mutation_toresname, axis=1)
 
-        #Create MultiIndex using segid, resid and amino_acid
+        # create MultiIndex using segid, resid and amino_acid
         other.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
         self.snap2_df.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
         other = other.join(self.snap2_df, how='left')
         other.reset_index(inplace=True) #Removes multi-index
 
-        #Remove superfluous columns
+        # remove superfluous columns
         other.drop(columns = ['mutation_resid', 'mutated_to_resname', 'Variant', 'resid', 'chain_offsets'], inplace=True)
         #print(other)
         return(other)

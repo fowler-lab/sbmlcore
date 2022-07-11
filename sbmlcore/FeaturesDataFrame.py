@@ -1,8 +1,9 @@
 import pandas
 
+
 class FeatureDataset(object):
     '''
-    Class that contains the dataset of mutations and associated features for simple machine learning.
+    Dataset of protein mutations and associated structural- and chemical-features for simple machine learning.
 
     Args:
         dataframe (pandas.DataFrame) 
@@ -10,7 +11,6 @@ class FeatureDataset(object):
         gene (str, optional): gene name
         species (str, optional): species
         reference (str)
-
     '''
 
     def __init__(self, df, *args, **kwargs):
@@ -38,6 +38,7 @@ class FeatureDataset(object):
         ''''
         Overload the addition operator to allow sbml Features to be added.
         '''
+
         self.df = other._add_feature(self.df)
 
         return self
@@ -46,6 +47,7 @@ class FeatureDataset(object):
         '''
         Print a summary of this Features dataset to STDOUT.
         '''
+
         output = ''
         if self.species is not None:
             output += 'species:          ' + self.species + '\n'
@@ -73,6 +75,7 @@ class FeatureDataset(object):
         Args:
             sbmlcore.Feature or list of sbmlcore.Features
         '''
+
         if isinstance(other,list):
             for i in other:
                 self.df = i._add_feature(self.df)

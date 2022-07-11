@@ -5,20 +5,22 @@ import sbmlcore
  
 class StructuralDistances(object):
     """
-    Class for structural distances
+    Distances between a specified region (i.e. origin) and all amino acids in a protein.
 
-    Parameters
-    ----------
-    1st - pdb file
-    2nd - group of atoms you want to calculate the distances to - uses MDAnalysis syntax, and distances are calculated from the centre of mass of this whole selection to each Ca in the structure
-    3rd - your choice of name for the resulting distance column in the dataframe
-    4th - resid offsets for the different chains - must be a dictionary in the form {'segid': int, ...}.
+    Args:
+        pdb_file (file): path to the Protein DataBank file
+        distance_selection (str): the MDAnalysis style selection text that defines the origin
+                                  e.g. "resname MG"
+        distance_name (str): what you would like to call this distance
+        offsets (dict): dictionary of form {segid (str): value (int)} where value is 
+                        the numerical offset between the genetic sequence and the PDB
 
-    E.g. a = sbmlcore.StructuralDistances('tests/5uh6.pdb','resname MG', 'Mg_distance', offsets = {'A': 0, 'B': 0, 'C': -6})
+    Examples:
+        The below will calculate the distance from the Magnesium ion in the M. tuberculosis
+        RNA polymerase structure to all amino acids in the protein. Since chain D (rpoB) in the
+        PDB file is numbered differently to the gene an offset dictionary is also supplied.
 
-    Returns
-    -------
-    dataframe with structural distance columns (named by user)
+        >>> a = sbmlcore.StructuralDistances('tests/5uh6.pdb','resname MG', 'Mg_distance', offsets = {'A': 0, 'B': 0, 'C': -6})
     """
 
     def __init__(self, pdb_file, distance_selection, distance_name, offsets=None):
@@ -28,11 +30,11 @@ class StructuralDistances(object):
 
         u = MDAnalysis.Universe(pdb_file)
 
-        #Ensure distance selection is a string
+        # ensure distance selection is a string
         assert isinstance(distance_selection, str), "Distance selection must be a string!"
 
         reference_com = u.select_atoms(distance_selection).center_of_mass()
-        #Check atom selection exists
+        # check atom selection exists
         assert u.select_atoms(distance_selection).n_atoms > 0, "Atom selection does not exist! Is your selection using the correct MDAnalysis syntax?"
 
         # apply any offsets to the residue numbering
@@ -65,8 +67,7 @@ class StructuralDistances(object):
 
     def _add_feature(self, other):
         """
-        Adds distances to existing mutation dataframe, and returns new joined dataframe.
-        Arguments: existing dataframe
+        Private method to add distances to existing mutation dataframe
         """
 
         assert isinstance(other, pandas.DataFrame), "You must be adding the extra feature to an existing dataframe!"
@@ -83,14 +84,14 @@ class StructuralDistances(object):
 
         other[['amino_acid', 'resid']] = other.apply(split_mutation, axis=1)
 
-        #Create MultiIndex using segid, resid and amino_acid
+        # create MultiIndex using segid, resid and amino_acid
         other.set_index(['segid', 'resid', 'amino_acid'], inplace=True)
         self.results.set_index(['segid', 'resid', 'amino_acid'], inplace=True)
 
         other = other.join(self.results, how='left')
 
-        #To check that the chain offsets have been correctly set
-        #and/or that structural data is of adequate quality -
+        # to check that the chain offsets have been correctly set
+        # and/or that structural data is of adequate quality -
         # defining this as the no NaNs should be less than half no rows
 
         #print("This is no rows:", len(other[self.distance_name])) #gives length of column 'Mg_distance'

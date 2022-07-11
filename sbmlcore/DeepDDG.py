@@ -5,17 +5,12 @@ import pandas
 
 class DeepDDG(object):
     """
-    Prediction of protein stability.
+    Prediction of protein stability via the DeepDDG webserver.
 
-    Parameters
-    ----------
-    .ddg file
-    offsets - as dictionary of form {segid (str): value (int)}
-
-    Returns
-    -------
-    Dataframe with protein stability as an extra column
-
+    Args:
+        DeepDDGFile (file): file written out by the DeepDDG webserver
+        offsets (dict): dictionary of form {segid (str): value (int)} where value is 
+                the numerical offset between the genetic sequence and the PDB
     """
 
     def __init__(self, DeepDDGFile, offsets=None):

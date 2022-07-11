@@ -8,44 +8,41 @@ import sbmlcore
 
 
 class TrajectoryDihedrals(object):
-    """Calculate and add dihedral angles from a molecular dynamics trajectory.
+    """Average dihedrals between a specified region (i.e. origin) and all amino acids in a protein.
+    
+    Notes:
+        smblcore is using MDAnalysis to load and analyse the trajectories so any trajectory
+        it can parse (XTC, DCD) can be used, and also the MDAnalysis selection style text must
+        be used to identify the region/origin to measure the distances from.
 
-    Parameters
-    ----------
-    1st - path to structure file
-    2nd - list containing paths to trajectory files
-    3rd - path to pdb_file of static structure - used to pull segment ids as these are often lost in trajectory structure files
-    4th - the target angle (phi, psi, omega)
-    5th - your choice of name for the resulting distance column in the dataframe
-    6th - type of angle metic that is being calculated (mean, median, max, or min)(default=mean)
-    7th - if the structure file doesn't contain all bonds, one can set add_bonds=True to fire an MDAnalysis bond prediction algorithm
-    8th - resid offsets for the different chains - must be a dictionary in the form {'segid':int, ...}.
-    9th - desired starting time of the trajectory
-    10th - deisred end time of the trajectory
-    11th - if percentile_exclusion is set to True, only data between the 5th and 95th percentile is considered (default=False)
-
-    E.g. a = a = sbmlcore.TrajectoryDihedrals(
-        "./tests/dhfr-3fre-tmp-1-1.gro",
-        [
-            "./tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc",
-        ],
-        "./tests/dhfr-3fre-tmp-1-1.pdb",
-        "phi",
-        "mean_phi",
-        angle_type="mean",
-        add_bonds=True,
-        offsets = {'A': 0},
-        percentile_exclusion=True
-        )
-
-    Returns
-    ----------
-    Instantiating the class instantiates a df with segment ids, residue ids, residue names, and associated distances to the specified reference selection
-
-    add_feature adds distances to existing mutation dataframe, and returns new joined dataframed
-
+    Args:
+        pdb_file (file): 
+        trajectory_list (list of paths): list of paths to molecular dynamics trajectories
+        static_pdb (file): path to the Protein DataBank
+        dihedral (str): the target angle (phi, psi or omega)
+        angle_name (str): what you would like to call this angle
+        angle_type (str): one of mean, median, max or min (default is mean)
+        add_bonds (bool): if the structure file doesn't contain all bonds, then setting add_bonds=True 
+                          will run an MDAnalysis bond prediction algorithm
+        offsets (dict): dictionary of form {segid (str): value (int)} where value is 
+                        the numerical offset between the genetic sequence and the PDB
+        start_time (float): from what time to start using frames from the trajectory
+        end_time (float): before which time to stop using frames from the trajectory
+        percentile_exclusion (bool): if True, then the 0-5th and 5-100th percentile distances
+                                     are excluded. Default is False
+    Examples:
+        >>> a = sbmlcore.TrajectoryDihedrals("./tests/dhfr-3fre-tmp-1-1.gro",
+                                             ["./tests/dhfr-3fre-tmp-1-2-nojump-skip100.xtc"],
+                                            "./tests/dhfr-3fre-tmp-1-1.pdb",
+                                            "phi",
+                                            "mean_phi",
+                                            angle_type="mean",
+                                            add_bonds=True,
+                                            offsets = {'A': 0},
+                                            percentile_exclusion=True
+                                            )
     """
-
+    
     def __init__(
         self,
         pdb_file,
@@ -245,7 +242,7 @@ class TrajectoryDihedrals(object):
         return x
 
     def search_nonetypes(self, traj):
-        """searches for nonetype dihedral angles and returns a list of their indexes"""
+        """Searches for nonetype dihedral angles and returns a list of their indexes"""
 
         selection_call = "i." + self.dihedral + "_selection()"
 
@@ -259,7 +256,7 @@ class TrajectoryDihedrals(object):
         return nonetype_list
 
     def apply_angle_type(self, dihedral_array):
-        """calculates the specified angle for each residue across all frames"""
+        """Calculates the specified angle for each residue across all frames"""
 
         if self.angle_type == "mean":
             angles = numpy.mean(dihedral_array, axis=1)
@@ -345,7 +342,7 @@ class TrajectoryDihedrals(object):
 
     @staticmethod
     def _filter_frames(pdb, traj, boundary, spec_time, dt):
-        """returns universe with frames greater and
+        """Returns MDAnalysis.Universe with frames greater and
         less than the specified start and end times"""
 
         # Becuase a new universe is essentially being created, every coordinate in the original is needed
