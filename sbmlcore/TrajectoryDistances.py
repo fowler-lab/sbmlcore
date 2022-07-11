@@ -11,6 +11,11 @@ class TrajectoryDistances(object):
     """
     Average distances between a specified region (i.e. origin) and all amino acids in a protein.
     
+    Notes:
+        smblcore is using MDAnalysis to load and analyse the trajectories so any trajectory
+        it can parse (XTC, DCD) can be used, and also the MDAnalysis selection style text must
+        be used to identify the region/origin to measure the distances from.
+
     Args:
         pdb_file (file): 
         trajectory_list (list of paths): list of paths to molecular dynamics trajectories
