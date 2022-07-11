@@ -18,8 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'sbmlcore'
-copyright = '2022, Philip W Fowler, Charlotte I Lynch and Dylan Adlard'
-author = 'Philip W Fowler, Charlotte I Lynch and Dylan Adlard'
+copyright = '2022, Charlotte I Lynch, Dylan Adlard, Philip W Fowler'
+author = 'Charlotte I Lynch, Dylan Adlard, Philip W Fowler'
+
+# The full version, including alpha/beta/rc tags
+release = 'v0.1.5'
 
 
 # -- General configuration ---------------------------------------------------
@@ -36,7 +39,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = []
 
 
 # -- Options for HTML output -------------------------------------------------
