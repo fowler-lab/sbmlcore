@@ -306,12 +306,13 @@ class SNAP2(object):
 
         snap2_df[["mutated_to_resname", "resid"]] = snap2_df.apply(split_mutation_toresname, axis=1)
 
-
         # adds column for offsets
         snap2_df["chain_offsets"] = [offsets[chain] for chain in snap2_df.segid]
 
         # applies offsets - adds them, as is also the case for Structural Features
         snap2_df["mutation_resid"] = snap2_df["resid"] + snap2_df["chain_offsets"]
+
+        snap2_df.drop(columns='resid', inplace=True)
 
         self.snap2_df = snap2_df
 
@@ -348,6 +349,6 @@ class SNAP2(object):
         other.reset_index(inplace=True) #Removes multi-index
 
         # remove superfluous columns
-        other.drop(columns = ['mutation_resid', 'mutated_to_resname', 'Variant', 'resid', 'chain_offsets'], inplace=True)
-        #print(other)
+        other.drop(columns = ['mutation_resid', 'mutated_to_resname', 'Variant', 'chain_offsets'], inplace=True)
+
         return(other)
