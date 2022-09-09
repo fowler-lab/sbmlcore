@@ -1,3 +1,5 @@
+import pkg_resources
+
 import pandas
 #N.B. All property scales have been checked! CIL
 
@@ -42,6 +44,26 @@ class AminoAcidProperty(object):
         other.drop(columns = ['ref_amino_acid', 'alt_amino_acid'], inplace=True)
 
         return(other)
+
+
+class RoskovNekrasovChange(AminoAcidProperty):
+
+    def __init__(self):
+
+        filename = pkg_resources.resource_filename("sbmlcore", 'data/rogov.csv')
+        self.lookup = pandas.read_csv(filename)
+
+        def split_row(row):
+            if isinstance(row.MUTATION, str) and len(row.MUTATION)==2:
+                return(pandas.Series([row.MUTATION[0], row.MUTATION[-1]]))
+            else:
+                return(pandas.Series([None,None]))
+
+
+        self.lookup[['ref_amino_acid', 'alt_amino_acid']] = self.lookup.apply(split_row, axis=1)
+        self.lookup.rename(columns={'SCORE': 'd_noskov'}, inplace=True)
+        self.lookup.drop(columns=['MUTATION'], inplace=True)
+        self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'], inplace=True)
 
 
 class AminoAcidVolumeChange(AminoAcidProperty):
