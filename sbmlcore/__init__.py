@@ -15,6 +15,7 @@ from .Misc import amino_acid_1to3letter
 from .ExternalCode import Stride
 from .ExternalCode import FreeSASA
 from .ExternalCode import SNAP2
+from .TempFactors import TempFactors
 from .StructuralDistances import StructuralDistances
 from .TrajectoryDistances import TrajectoryDistances
 from .TrajectoryDihedrals import TrajectoryDihedrals
