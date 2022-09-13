@@ -310,6 +310,9 @@ class SNAP2(object):
         # first need to change 'Expected Accuracy' from strings to floats
         no_percentage = snap2_df['Expected Accuracy'].replace(to_replace='%', value='', regex=True)
 
+        snap2_df['Expected Accuracy'].replace(to_replace='%', value='', regex=True, inplace=True)
+        snap2_df['Expected Accuracy'] = snap2_df['Expected Accuracy'].astype('int')
+
         # turn str into int64 so that inequalities can be used
         series = pandas.to_numeric(no_percentage)
 
@@ -324,17 +327,23 @@ class SNAP2(object):
         def split_mutation_toresname(row):
             return pandas.Series([row.Variant[-1], int(row.Variant[1:-1])])
 
-        snap2_df[["mutated_to_resname", "resid"]] = snap2_df.apply(split_mutation_toresname, axis=1)
+        snap2_df[["alt_amino_acid", "resid"]] = snap2_df.apply(split_mutation_toresname, axis=1)
 
         # adds column for offsets
         snap2_df["chain_offsets"] = [offsets[chain] for chain in snap2_df.segid]
 
         # applies offsets - adds them, as is also the case for Structural Features
-        snap2_df["mutation_resid"] = snap2_df["resid"] + snap2_df["chain_offsets"]
+        snap2_df["resid"] = snap2_df["resid"] + snap2_df["chain_offsets"]
 
-        snap2_df.drop(columns='resid', inplace=True)
+        # snap2_df.drop(columns='resid', inplace=True)
 
-        self.snap2_df = snap2_df
+        snap2_df.rename(columns={'Predicted Effect':'snap2_effect',\
+                                 'Score':'snap2_score',\
+                                 'Expected Accuracy':'snap2_accuracy',\
+                                 'Variant': 'mutation'
+                                }, inplace=True)
+
+        self.results = snap2_df
 
 
     def _add_feature(self, other):
@@ -344,7 +353,7 @@ class SNAP2(object):
 
         assert isinstance(other, pandas.DataFrame), "You must be adding the extra feature to an existing dataframe!"
 
-        assert 'Score' not in other.columns, "You've already added that feature!"
+        assert 'snap2_score' not in other.columns, "You've already added that feature!"
 
         assert 'mutation' in other.columns, "Passed dataframe must contain a column called mutation"
 
@@ -360,15 +369,15 @@ class SNAP2(object):
         def split_mutation_toresname(row):
             return pandas.Series([row.mutation[-1], int(row.mutation[1:-1])])
 
-        other[['mutated_to_resname', 'mutation_resid']] = other.apply(split_mutation_toresname, axis=1)
+        other[['alt_amino_acid', 'resid']] = other.apply(split_mutation_toresname, axis=1)
 
         # create MultiIndex using segid, resid and amino_acid
-        other.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
-        self.snap2_df.set_index(['segid', 'mutation_resid', 'mutated_to_resname'], inplace=True)
-        other = other.join(self.snap2_df, how='left')
+        other.set_index(['segid', 'resid', 'alt_amino_acid'], inplace=True)
+        self.results.set_index(['segid', 'resid', 'alt_amino_acid'], inplace=True)
+        other = other.join(self.results[['snap2_score', 'snap2_accuracy']], how='left')
         other.reset_index(inplace=True) #Removes multi-index
 
         # remove superfluous columns
-        other.drop(columns = ['mutation_resid', 'mutated_to_resname', 'Variant', 'chain_offsets'], inplace=True)
+        other.drop(columns = ['resid', 'alt_amino_acid'], inplace=True)
 
         return(other)

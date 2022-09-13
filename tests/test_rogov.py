@@ -10,7 +10,7 @@ def test_amino_acid_rogov_change_value():
 
     a = sbmlcore.AminoAcidRogovChange()
     df =  a._add_feature(df)
-    assert 'd_noskov' in df.columns
+    assert 'd_rogov' in df.columns
 
-    assert df.d_noskov.values == pytest.approx(numpy.array([0.029, 0.224]))
+    assert df.d_rogov.values == pytest.approx(numpy.array([0.029, 0.224]))
 

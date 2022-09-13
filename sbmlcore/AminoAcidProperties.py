@@ -61,7 +61,7 @@ class AminoAcidRogovChange(AminoAcidProperty):
 
 
         self.lookup[['ref_amino_acid', 'alt_amino_acid']] = self.lookup.apply(split_row, axis=1)
-        self.lookup.rename(columns={'SCORE': 'd_noskov'}, inplace=True)
+        self.lookup.rename(columns={'SCORE': 'd_rogov'}, inplace=True)
         self.lookup.drop(columns=['MUTATION'], inplace=True)
         self.lookup.set_index(['ref_amino_acid', 'alt_amino_acid'], inplace=True)
 

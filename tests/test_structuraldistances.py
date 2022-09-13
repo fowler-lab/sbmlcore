@@ -51,7 +51,6 @@ def test_chain_selection():
     # Testing fail if half of the distance column is NaNs
     with pytest.raises(AssertionError):
         a = sbmlcore.StructuralDistances('tests/5uh6.pdb','resname MG', 'Mg_distance', offsets = {'A': 1, 'B': 0, 'C': -6})
-        df.drop(columns=['resname'], inplace=True)
         df = a._add_feature(df)
 
     #Testing fail if more than half of the distance column is NaNs
