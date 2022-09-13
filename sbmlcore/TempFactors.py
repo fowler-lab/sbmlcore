@@ -83,4 +83,6 @@ class TempFactors(object):
         other.reset_index(inplace=True)
         self.results.reset_index(inplace=True)
 
+        other.drop(columns=['amino_acid', 'resid', 'resname'], inplace=True)
+
         return(other)

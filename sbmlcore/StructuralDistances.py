@@ -115,6 +115,8 @@ class StructuralDistances(object):
         other.reset_index(inplace=True)
         self.results.reset_index(inplace=True)
 
+        other.drop(columns=['amino_acid', 'resid'], inplace=True)
+
         #other.drop(columns = ['amino_acid', 'resid', 'resname', 'resname_1', 'chain_offsets', 'resname_3', 'pdb_resid'], inplace=True)
 
         return(other)
