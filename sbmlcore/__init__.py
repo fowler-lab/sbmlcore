@@ -7,7 +7,7 @@ from .AminoAcidProperties import AminoAcidHydropathyChangeKyteDoolittle
 from .AminoAcidProperties import AminoAcidHydropathyChangeWimleyWhite
 from .AminoAcidProperties import AminoAcidMWChange
 from .AminoAcidProperties import AminoAcidPiChange
-from .AminoAcidProperties import AminoAcidRoskovChange
+from .AminoAcidProperties import AminoAcidRogovChange
 
 from .Misc import amino_acid_3to1letter
 from .Misc import amino_acid_1to3letter
