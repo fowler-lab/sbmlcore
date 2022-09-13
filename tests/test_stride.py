@@ -14,6 +14,9 @@ def test_stride():
     # check that all the -180 < phi <= 180 (and also for psi)
     assert all((a.results.phi > -180) & (a.results.phi <= 180))
 
+    assert (a.results.n_hbond_acceptors>=0).sum() == 185
+    assert (a.results.n_hbond_donors>=0).sum() == 185
+
     # check that only these 1-letter codes are used for secondary structure
     assert set(a.results.secondary_structure).issubset({'H', 'I', 'G', 'E', 'B', 'T', 'C'})
 

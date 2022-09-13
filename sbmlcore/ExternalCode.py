@@ -23,7 +23,7 @@ def wrap_angle(angle):
 
 class Stride(object):
     """
-    Prediction of secondary structure, SASA and backbone dihedral angles using STRIDE
+    Prediction of secondary structure, SASA, backbone dihedral angles and numbers of hbond donor and acceptors using STRIDE
 
     Args:
         PDBFile (file): Protein Databank file containing protein coordinates
@@ -47,17 +47,37 @@ class Stride(object):
         else:
             raise IOError("No stride installed!")
 
-        output = subprocess.getoutput(str(stride)+' ' + self.pdb_file)
+        output = subprocess.getoutput(str(stride)+' -h ' + self.pdb_file)
 
         rows=[]
+        hbond_acc=[]
+        hbond_dnr=[]
         for line in output.split('\n'):
             if line[:3] == 'ASG':
                 rows.append(line.split()[1:])
+            elif line[:3] == 'ACC':
+                cols = line.split()
+                hbond_acc.append([cols[1], cols[2], cols[3], cols[10]])
+            elif line[:3] == 'DNR':
+                cols = line.split()
+                hbond_dnr.append([cols[1], cols[2], cols[3], cols[10]])
 
         self.results = pandas.DataFrame(rows, columns=['resname', 'segid', 'resid',\
                                                        'ordinal_resid', 'secondary_structure',\
                                                        'secondary_structure_long', 'phi', 'psi',\
                                                        'residue_sasa', 'pdb_code'])
+
+        acceptors = pandas.DataFrame(hbond_acc, columns=['resname', 'segid', 'resid', 'n_hbond_acceptors'])
+        acceptors = acceptors.groupby(['resname', 'segid', 'resid']).count()
+
+        donors = pandas.DataFrame(hbond_dnr, columns=['resname', 'segid', 'resid', 'n_hbond_donors'])
+        donors = donors.groupby(['resname', 'segid', 'resid']).count()
+
+        self.results.set_index(['resname', 'segid', 'resid'], inplace=True)
+        self.results = self.results.join(acceptors, how='left')
+        self.results = self.results.join(donors, how='left')
+        self.results.fillna(0, inplace=True)
+        self.results.reset_index(inplace=True)
 
         def short_amino_acid(row):
             return sbmlcore.amino_acid_3to1letter[row.resname]
@@ -75,7 +95,7 @@ class Stride(object):
 
         self.results = self.results[['resid', 'amino_acid', 'segid',
                                      'secondary_structure', 'secondary_structure_long',
-                                     'phi', 'psi', 'residue_sasa']]
+                                     'phi', 'psi', 'residue_sasa', 'n_hbond_acceptors', 'n_hbond_donors']]
 
         tmp = pandas.get_dummies(self.results.secondary_structure)
         self.results = self.results.join(tmp, how='left')
