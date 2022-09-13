@@ -46,7 +46,7 @@ class AminoAcidProperty(object):
         return(other)
 
 
-class RoskovNekrasovChange(AminoAcidProperty):
+class AminoAcidRoskovChange(AminoAcidProperty):
 
     def __init__(self):
 
