@@ -1,10 +1,11 @@
 import pathlib
+import copy
 
 import pandas
 
-class DeepDDG(object):
+class RaSP(object):
     """
-    Prediction of protein stability via the DeepDDG webserver.
+    Prediction of protein stability via the RaSP Google Colab project.
 
     Args:
         DeepDDGFile (file): file written out by the DeepDDG webserver
@@ -12,45 +13,25 @@ class DeepDDG(object):
                 the numerical offset between the genetic sequence and the PDB
     """
 
-    def __init__(self, DeepDDGFile, offsets=None):
+    def __init__(self, RaSPFile, offsets=None):
 
-        assert pathlib.Path(DeepDDGFile).is_file(), "specified file does not exist!"
+        assert pathlib.Path(RaSPFile).is_file(), "specified file does not exist!"
 
-        self.deep_ddg_file = DeepDDGFile
+        self.rasp_file = RaSPFile
 
-        # unfortunately deepDDG uses a non-standard tab/space delimited file format
-        # this breaks pandas.read_csv so it is easier to do it the long way....
-        results = []
+        self.results = pandas.read_csv(self.rasp_file)
 
-        # open the file for reading
-        with open(DeepDDGFile, 'r') as INPUT:
+        self.results.drop(columns=['pdbid', 'variant', 'wt_idx', 'mt_idx', 'wt'], inplace=True)
 
-            # read the first line and check it contains what we expect
-            header = INPUT.readline()
-            assert "#chain WT ResID Mut ddG" in header, 'file does not contain expected columns -> are you sure this is a DeepDDG output file?'
-
-            # iterate through the remainder of the file
-            for i in INPUT:
-
-                cols = i.rstrip().split(' ')
-
-                # the first few columns always line up...
-                line = [cols[0], cols[1], int(cols[2]), cols[3]]
-
-                # ..but negative values of ddG can be found in the 7th column
-                if len(cols) == 6:
-                    line.append(float(cols[5]))
-                # ..and positive the 8th
-                elif len(cols) == 7:
-                    line.append(float(cols[6]))
-                else:
-                    raise IOError("DeepDDG file not formatted as expected!")
-
-                results.append(line)
-
-        # finally build and store the dataframe
-        self.results =pandas.DataFrame(results, columns=['segid', 'ref_amino_acid', 'resid', 'alt_amino_acid', 'deep_ddG'])
-
+        self.results.rename(columns={'chainid': 'segid',\
+                                     'pos': 'resid',\
+                                     'wt_AA': 'ref_amino_acid',\
+                                     'mt_AA': 'alt_amino_acid',\
+                                     'score_ml_fermi': 'rasp_score_ml_fermi',\
+                                     'score_ml': 'rasp_score_ml',\
+                                     'wt_nlf': 'rasp_wt_nlf',\
+                                     'mt_nlf': 'rasp_mt_nlf'}, inplace=True)
+       
         # apply any offsets to the residue numbering
         # as specified in the supplied offsets dict e.g. {'A': 3, 'B': -4}
         # Chain is segid i.e. A, B, C etc.
@@ -63,7 +44,7 @@ class DeepDDG(object):
 
             assert isinstance(offsets, dict), "Offsets should be specified as a dictionary e.g. offsets = {'A': 3, 'B': -4}"
 
-            assert set(offsets.keys()) == set(self.results.segid.unique()), 'specified segids in offsets do not match what is in the provided DeepDDG file!'
+            assert set(offsets.keys()) == set(self.results.segid.unique()), 'specified segids in offsets do not match what is in the provided RaSP file!'
 
             for chain in offsets:
                 assert isinstance(offsets[chain], int), "Offsets for each segid must be an integer!"
@@ -78,14 +59,14 @@ class DeepDDG(object):
 
         assert 'segid' in other.columns, 'passed dataframe must contain a column called segid containing chain information e.g. A'
 
-        assert 'deep_ddG' not in other.columns, 'passed dataframe already contains a deep_ddG column -> have you already added it?'
+        assert 'rasp_score_ml' not in other.columns, 'passed dataframe already contains a RaSP column -> have you already added it?'
 
         def split_mutation(row):
             return pandas.Series([row.mutation[0], int(row.mutation[1:-1]), row.mutation[-1]])
 
         other[['ref_amino_acid', 'resid', 'alt_amino_acid']] = other.apply(split_mutation, axis=1)
-
         other.set_index(['segid', 'ref_amino_acid', 'resid', 'alt_amino_acid'], inplace=True)
+        
         self.results.set_index(['segid', 'ref_amino_acid', 'resid', 'alt_amino_acid'], inplace=True)
 
         other = other.join(self.results, how='left')

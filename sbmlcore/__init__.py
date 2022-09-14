@@ -20,6 +20,7 @@ from .StructuralDistances import StructuralDistances
 from .TrajectoryDistances import TrajectoryDistances
 from .TrajectoryDihedrals import TrajectoryDihedrals
 from .DeepDDG import DeepDDG
+from .RaSP import RaSP
 from .FeaturesDataFrame import FeatureDataset
 
 '''
