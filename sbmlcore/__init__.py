@@ -21,6 +21,7 @@ from .TrajectoryDistances import TrajectoryDistances
 from .TrajectoryDihedrals import TrajectoryDihedrals
 from .DeepDDG import DeepDDG
 from .RaSP import RaSP
+from .ResidueDepth import ResidueDepth
 from .FeaturesDataFrame import FeatureDataset
 
 '''
