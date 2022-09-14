@@ -46,6 +46,7 @@ jobs:
     - name: Install msms
       run: | 
         conda install -c bioconda msms
+        echo "$HOME/miniconda3/bin/msms" >> $GITHUB_PATH
 
     - name: Install Python dependencies
       run: |
