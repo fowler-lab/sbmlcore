@@ -45,17 +45,7 @@ jobs:
 
     - name: Install msms
       run: | 
-        mkdir msms
-        cd msms/
-        wget https://ccsb.scripps.edu/msms/download/933/        
-        tar zxvf msms_i86_64Linux2_2.6.1.tar.gz
-        cd ..
-        mkdir bin
-        cp msms/msms.x86_64Linux2.2.6.1 bin/
-        cd bin
-        ln -s msms.x86_64Linux2.2.6.1 msms
-        cd ..
-        echo "$HOME/bin" >> $GITHUB_PATH
+        conda install -c bioconda msms
 
     - name: Install Python dependencies
       run: |
