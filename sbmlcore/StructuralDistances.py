@@ -12,6 +12,10 @@ class StructuralDistances(object):
         distance_selection (str): the MDAnalysis style selection text that defines the origin
                                   e.g. "resname MG"
         distance_name (str): what you would like to call this distance
+        infer_masses (bool): whether to allow MDAnalysis to infer the masses of the atoms in the distance_selection, 
+                             allows the centre of mass to be calculated. This will generally work for residues, but 
+                             for small molecules the masses may not be able to be inferred, in which case set this to False
+                             and ensure only heavy atoms are in the supplied PDB and it will find the centre of geometry.
         offsets (dict): dictionary of form {segid (str): value (int)} where value is 
                         the numerical offset between the genetic sequence and the PDB
 
@@ -23,7 +27,7 @@ class StructuralDistances(object):
         >>> a = sbmlcore.StructuralDistances('tests/5uh6.pdb','resname MG', 'Mg_distance', offsets = {'A': 0, 'B': 0, 'C': -6})
     """
 
-    def __init__(self, pdb_file, distance_selection, distance_name, offsets=None):
+    def __init__(self, pdb_file, distance_selection, distance_name, infer_masses=True, offsets=None):
 
         # check file exists
         assert pathlib.Path(pdb_file).is_file(), "File does not exist!"
@@ -33,7 +37,12 @@ class StructuralDistances(object):
         # ensure distance selection is a string
         assert isinstance(distance_selection, str), "Distance selection must be a string!"
 
-        reference_com = u.select_atoms(distance_selection).center_of_mass()
+        # prefer to calculate the centre of mass, but the masses cannot always be inferred from the PDB file
+        if infer_masses:
+            reference_com = u.select_atoms(distance_selection).center_of_mass()
+        else:
+            reference_com = u.select_atoms(distance_selection).center_of_geometry()
+
         # check atom selection exists
         assert u.select_atoms(distance_selection).n_atoms > 0, "Atom selection does not exist! Is your selection using the correct MDAnalysis syntax?"
 
