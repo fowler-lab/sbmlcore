@@ -10,8 +10,6 @@ class ResidueDepth(object):
 
     def __init__(self, pdb_file, segids=None, offsets=None):
 
-
-
         # check file exists
         assert pathlib.Path(pdb_file).is_file(), "File does not exist!" + pdb_file
 
