@@ -3,7 +3,7 @@ import numpy
 import pytest
 import sbmlcore
 
-#@pytest.mark.skip(reason="need to work out how to install msms on GitHub actions")
+@pytest.mark.skip(reason="need to work out how to install msms on GitHub actions")
 def test_residue_depth():
 
     a = sbmlcore.ResidueDepth('tests/3pl1-mod-chains.pdb', segids=['A'])
