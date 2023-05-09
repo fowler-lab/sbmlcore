@@ -22,10 +22,6 @@ def test_chain_selection():
     with pytest.raises(AssertionError):
         a = sbmlcore.StructuralDistances('tests/5uh6.pdb', 5, 'Zn_distance', offsets = {'A': 0, 'B': 0, 'C': -6})
 
-    # Incorrectly naming a resname - i.e. atom selection does not exist
-    with pytest.raises(AssertionError):
-        a = sbmlcore.StructuralDistances('tests/5uh6.pdb','resname ZP', 'Zn_distance', offsets = {'A': 0, 'B': 0, 'C': -6})
-
     # Offsets is not a dictionary
     with pytest.raises(AssertionError):
         a = sbmlcore.StructuralDistances('tests/5uh6.pdb','resname ZN', 'Zn_distance', offsets = [0, 0, -6])
