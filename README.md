@@ -44,3 +44,5 @@ We will be making a series of jupyter-notebooks demonstrating how to use the cla
  - Protein stability:
     1. StabilityPredict. Online metapredictor, single amino acid at a time. Josh used in the pncA paper but had to contact them directly to run the entirity of PncA. ([paper](https://www.jbc.org/article/S0021-9258(20)34176-4/fulltext))
     2. DynaMUT. Also claims to outperform DUET etc. ([paper](https://academic.oup.com/nar/article/46/W1/W350/4990022)). Can process a list of specified mutations in one job. ([server](http://biosig.unimelb.edu.au/dynamut/))
+
+PWF, 9 May 2023
