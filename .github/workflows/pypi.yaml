@@ -25,6 +25,34 @@ jobs:
       with:
         python-version: 3.8
 
+    - name: Install dssp
+      run: |
+        sudo apt-get install libboost-all-dev
+        wget https://github.com/cmbi/dssp/archive/refs/tags/2.3.0.zip
+        mv 2.3.0.zip dssp-2.3.0.zip
+        unzip dssp-2.3.0.zip
+        cd dssp-2.3.0
+        ./autogen.sh
+        ./configure
+        make mkdssp
+        cp mkdssp ..
+
+    - name: Install stride
+      run: |
+        wget http://webclu.bio.wzw.tum.de/stride/stride.tar.gz
+        mkdir stride-src
+        mv stride.tar.gz stride-src/
+        cd stride-src
+        tar zxvf stride.tar.gz
+        make
+        cp stride ..
+        cd ..
+
+    - name: Install msms
+      run: | 
+        conda install -c bioconda msms
+        echo "$HOME/miniconda3/bin/msms" >> $GITHUB_PATH
+        
     - name: Install Python dependencies
       run: |
         python3 -m pip install --upgrade pip
@@ -41,7 +69,7 @@ jobs:
         pip install
         build
         --user
-        
+
     - name: Build a binary wheel and a source tarball
       run: >-
         python -m
