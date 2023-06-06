@@ -5,7 +5,7 @@
 # sbmlcore
 Collection of core classes to help with building structure- and chemistry-based feature datasets to train machine learning models to predict antimicrobial resistance.
 
-This is a pre-release alpha version - it may not be fully functional for your requirements and it is also subject to change with no notice!
+This is under active development and so is subject to change with no notice.
 
 We will be making a series of jupyter-notebooks demonstrating how to use the classes available [here](https://github.com/fowler-lab/sbmlcore-tutorials).
 
