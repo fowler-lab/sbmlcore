@@ -1,13 +1,19 @@
 #! /usr/bin/env python3
 
 # from .AminoAcidProperties import *
-from .AminoAcidProperties import AminoAcidProperty
+from .AminoAcidProperties import AminoAcidPropertyChange
 from .AminoAcidProperties import AminoAcidVolumeChange
 from .AminoAcidProperties import AminoAcidHydropathyChangeKyteDoolittle
 from .AminoAcidProperties import AminoAcidHydropathyChangeWimleyWhite
 from .AminoAcidProperties import AminoAcidMWChange
 from .AminoAcidProperties import AminoAcidPiChange
 from .AminoAcidProperties import AminoAcidRogovChange
+from .AminoAcidProperties import AminoAcidVolume
+from .AminoAcidProperties import AminoAcidHydropathyKyteDoolittle
+from .AminoAcidProperties import AminoAcidHydropathyWimleyWhite
+from .AminoAcidProperties import AminoAcidMW
+from .AminoAcidProperties import AminoAcidPi
+
 
 from .Misc import amino_acid_3to1letter
 from .Misc import amino_acid_1to3letter
