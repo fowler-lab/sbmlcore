@@ -303,3 +303,57 @@ class AminoAcidVolume(AminoAcidProperty):
         self.lookup = _make_table(aa_volume)
         self.lookup.rename(columns = {'value': 'volume'}, inplace=True)
         self.lookup.set_index(['amino_acid'],inplace=True)
+
+class SideChainRings(AminoAcidProperty):
+    """
+    Number of rings in the side chain
+    """
+
+    def __init__(self):
+
+        aa_rings =  {'A': 0, 'R': 0, 'N': 0, 'D': 0, 'C': 0,
+                      'Q': 0, 'E': 0, 'G': 0, 'H': 1, 'I': 0,
+                      'L': 0, 'K': 0, 'M': 0, 'F': 1, 'P': 1,
+                      'S': 0, 'T': 0, 'W': 2, 'Y': 1, 'V': 0}
+        
+        self.lookup = _make_table(aa_rings)
+        self.lookup.rename(columns = {'value': 'rings'}, inplace=True)
+        self.lookup.set_index(['amino_acid'],inplace=True)
+
+class HBondDonors(AminoAcidProperty):
+    """
+    Number of sp hydrogens that can be donated by the side chain
+
+    Notes:
+        https://www.imgt.org/IMGTeducation/Aide-memoire/_UK/aminoacids/charge/
+    """
+    
+    def __init__(self):
+        
+        h_donors = {'A': 0, 'R': 5, 'N': 2, 'D': 0, 'C': 0,
+                      'Q': 2, 'E': 0, 'G': 0, 'H': 2, 'I': 0,
+                      'L': 0, 'K': 3, 'M': 0, 'F': 0, 'P': 0,
+                      'S': 1, 'T': 1, 'W': 1, 'Y': 1, 'V': 0}
+        self.lookup = _make_table(h_donors)
+        self.lookup.rename(columns = {'value': 'h_donors'}, inplace=True)
+        self.lookup.set_index(['amino_acid'],inplace=True)
+
+
+class HBondAcceptors(AminoAcidProperty):
+    """
+    Number of hydrogen bonds that can be accepted by the side chain
+
+    Notes:
+        https://www.imgt.org/IMGTeducation/Aide-memoire/_UK/aminoacids/charge/
+    """
+
+    def __init__(self):
+            
+        h_donors = {'A': 0, 'R': 0, 'N': 2, 'D': 4, 'C': 0,
+                      'Q': 2, 'E': 4, 'G': 0, 'H': 2, 'I': 0,
+                      'L': 0, 'K': 0, 'M': 0, 'F': 0, 'P': 0,
+                      'S': 2, 'T': 2, 'W': 0, 'Y': 1, 'V': 0}
+        self.lookup = _make_table(h_donors)
+        self.lookup.rename(columns = {'value': 'h_acceptors'}, inplace=True)
+        self.lookup.set_index(['amino_acid'],inplace=True)
+

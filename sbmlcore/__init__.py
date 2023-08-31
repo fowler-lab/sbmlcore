@@ -13,6 +13,10 @@ from .AminoAcidProperties import AminoAcidHydropathyKyteDoolittle
 from .AminoAcidProperties import AminoAcidHydropathyWimleyWhite
 from .AminoAcidProperties import AminoAcidMW
 from .AminoAcidProperties import AminoAcidPi
+from .AminoAcidProperties import SideChainRings
+from .AminoAcidProperties import HBondDonors
+from .AminoAcidProperties import HBondAcceptors
+
 
 
 from .Misc import amino_acid_3to1letter
