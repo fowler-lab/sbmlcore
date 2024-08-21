@@ -6,25 +6,24 @@ import MDAnalysis
 import sbmlcore
 
 
-
 class TrajectoryDistances(object):
     """
     Average distances between a specified region (i.e. origin) and all amino acids in a protein.
-    
+
     Notes:
         smblcore is using MDAnalysis to load and analyse the trajectories so any trajectory
         it can parse (XTC, DCD) can be used, and also the MDAnalysis selection style text must
         be used to identify the region/origin to measure the distances from.
 
     Args:
-        pdb_file (file): 
+        pdb_file (file):
         trajectory_list (list of paths): list of paths to molecular dynamics trajectories
         static_pdb (file): path to the Protein DataBank
         distance_selection (str): the MDAnalysis style selection text that defines the origin
                                   e.g. "resname MG"
         distance_name (str): what you would like to call this distance
         distance_type (str): one of mean, median, max or min (default is mean)
-        offsets (dict): dictionary of form {segid (str): value (int)} where value is 
+        offsets (dict): dictionary of form {segid (str): value (int)} where value is
                         the numerical offset between the genetic sequence and the PDB
         start_time (float): from what time to start using frames from the trajectory
         end_time (float): before which time to stop using frames from the trajectory
