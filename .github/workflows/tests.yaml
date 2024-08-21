@@ -34,7 +34,7 @@ jobs:
 
     - name: Install stride
       run: |
-        wget --no-check-certificate http://webclu.bio.wzw.tum.de/stride/stride.tar.gz
+        wget --no-check-certificate https://webclu.bio.wzw.tum.de/stride/stride.tar.gz
         mkdir stride-src
         mv stride.tar.gz stride-src/
         cd stride-src
