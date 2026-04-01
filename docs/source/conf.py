@@ -17,12 +17,14 @@
 
 # -- Project information -----------------------------------------------------
 
+from pathlib import Path
+
 project = 'sbmlcore'
 copyright = '2022, Charlotte I Lynch, Dylan Adlard, Philip W Fowler'
 author = 'Charlotte I Lynch, Dylan Adlard, Philip W Fowler'
 
 # The full version, including alpha/beta/rc tags
-release = 'v0.1.5'
+release = Path(__file__).resolve().parents[2].joinpath("VERSION").read_text(encoding="utf-8").strip()
 
 
 # -- General configuration ---------------------------------------------------
