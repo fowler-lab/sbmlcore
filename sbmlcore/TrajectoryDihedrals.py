@@ -2,9 +2,19 @@ import pathlib
 
 import pandas
 import numpy
-import MDAnalysis
-from MDAnalysis.analysis.dihedrals import Dihedral
 import sbmlcore
+
+
+def _load_mdanalysis():
+    try:
+        import MDAnalysis
+        from MDAnalysis.analysis.dihedrals import Dihedral
+    except Exception as exc:  # pragma: no cover - environment dependent
+        raise ImportError(
+            "MDAnalysis is required for TrajectoryDihedrals. Install sbmlcore with the 'md' extra."
+        ) from exc
+
+    return MDAnalysis, Dihedral
 
 
 class TrajectoryDihedrals(object):
@@ -106,6 +116,7 @@ class TrajectoryDihedrals(object):
         self.dihedral = dihedral
         self.angle_type = angle_type
 
+        MDAnalysis, Dihedral = _load_mdanalysis()
         first_pass = True
 
         for trajectory in trajectory_list:

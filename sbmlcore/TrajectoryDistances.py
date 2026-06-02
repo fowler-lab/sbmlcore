@@ -2,8 +2,18 @@ import pathlib
 
 import pandas
 import numpy
-import MDAnalysis
 import sbmlcore
+
+
+def _load_mdanalysis():
+    try:
+        import MDAnalysis
+    except Exception as exc:  # pragma: no cover - environment dependent
+        raise ImportError(
+            "MDAnalysis is required for TrajectoryDistances. Install sbmlcore with the 'md' extra."
+        ) from exc
+
+    return MDAnalysis
 
 
 class TrajectoryDistances(object):
@@ -92,14 +102,13 @@ class TrajectoryDistances(object):
             if start_time is not None:
                 assert start_time < end_time
 
+        MDAnalysis = _load_mdanalysis()
         first_pass = True
 
         for trajectory in trajectory_list:
 
             u = MDAnalysis.Universe(pdb_file, trajectory)
             u_static = MDAnalysis.Universe(static_pdb)
-
-            reference_com = u.select_atoms(distance_selection).center_of_mass()
 
             # check atom selection exists
             assert (
@@ -119,6 +128,7 @@ class TrajectoryDistances(object):
                 if end_time is not None and ts.time > end_time:
                     continue
 
+                reference_com = u.select_atoms(distance_selection).center_of_mass()
                 distances = MDAnalysis.lib.distances.distance_array(
                     reference_com, Ca_all.positions
                 )
@@ -128,6 +138,8 @@ class TrajectoryDistances(object):
                     first_pass = False
                 else:
                     distance_array = numpy.concatenate([distance_array, distances])
+
+        assert not first_pass, "No trajectory frames matched the requested time range."
 
         # inverts the array to make subseqeunt calculations more intuitive
         distance_array = distance_array.T

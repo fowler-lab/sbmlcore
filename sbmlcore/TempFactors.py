@@ -1,7 +1,17 @@
 import pandas
 import pathlib
-import MDAnalysis
 import sbmlcore
+
+
+def _load_mdanalysis():
+    try:
+        import MDAnalysis
+    except Exception as exc:  # pragma: no cover - environment dependent
+        raise ImportError(
+            "MDAnalysis is required for TempFactors. Install sbmlcore with the 'md' extra."
+        ) from exc
+
+    return MDAnalysis
 
 
 class TempFactors(object):
@@ -29,6 +39,7 @@ class TempFactors(object):
         # check file exists
         assert pathlib.Path(pdb_file).is_file(), "File does not exist!"
 
+        MDAnalysis = _load_mdanalysis()
         u = MDAnalysis.Universe(pdb_file)
 
         # apply any offsets to the residue numbering

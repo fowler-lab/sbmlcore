@@ -32,6 +32,7 @@ class ResidueDepth(object):
             for chain in offsets:
                 assert chain in chain_list, "Need to specify a segid that exists in pdb!"
                 assert isinstance(offsets[chain], int), "Offsets for each segid must be an integer!"
+            segids = list(offsets)
 
         rows = {'segid': [],\
                 'resid': [],\

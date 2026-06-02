@@ -1,4 +1,4 @@
-import pkg_resources
+from importlib.resources import files
 
 import pandas
 #N.B. All property scales have been checked! CIL
@@ -87,7 +87,7 @@ class AminoAcidRogovChange(AminoAcidPropertyChange):
 
     def __init__(self):
 
-        filename = pkg_resources.resource_filename("sbmlcore", 'data/rogov.csv')
+        filename = files("sbmlcore").joinpath("data/rogov.csv")
         self.lookup = pandas.read_csv(filename)
 
         def split_row(row):
@@ -356,4 +356,3 @@ class HBondAcceptors(AminoAcidProperty):
         self.lookup = _make_table(h_donors)
         self.lookup.rename(columns = {'value': 'h_acceptors'}, inplace=True)
         self.lookup.set_index(['amino_acid'],inplace=True)
-
