@@ -109,6 +109,7 @@ class TrajectoryDistances(object):
 
             u = MDAnalysis.Universe(pdb_file, trajectory)
             u_static = MDAnalysis.Universe(static_pdb)
+            reference_com = u.select_atoms(distance_selection).center_of_mass()
 
             # check atom selection exists
             assert (
@@ -128,7 +129,6 @@ class TrajectoryDistances(object):
                 if end_time is not None and ts.time > end_time:
                     continue
 
-                reference_com = u.select_atoms(distance_selection).center_of_mass()
                 distances = MDAnalysis.lib.distances.distance_array(
                     reference_com, Ca_all.positions
                 )
