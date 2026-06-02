@@ -41,6 +41,7 @@ jobs:
         git checkout 867a5eb0f2479cb16615512a53ee472c54649505
         make -C src
         cp src/stride "$GITHUB_WORKSPACE/stride"
+        chmod +x "$GITHUB_WORKSPACE/stride"
 
     - name: Install msms
       run: | 
