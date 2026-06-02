@@ -36,8 +36,8 @@ jobs:
 
     - name: Install stride
       run: |
-        git clone https://github.com/MDAnalysis/stride.git
-        cd stride
+        git clone https://github.com/MDAnalysis/stride.git stride-src
+        cd stride-src
         git checkout 867a5eb0f2479cb16615512a53ee472c54649505
         make -C src
         cp src/stride "$GITHUB_WORKSPACE/stride"
