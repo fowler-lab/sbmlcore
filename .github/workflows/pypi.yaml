@@ -36,14 +36,11 @@ jobs:
 
     - name: Install stride
       run: |
-        wget --no-check-certificate https://webclu.bio.wzw.tum.de/stride/stride.tar.gz
-        mkdir stride-src
-        mv stride.tar.gz stride-src/
-        cd stride-src
-        tar zxvf stride.tar.gz
-        make
-        cp stride ..
-        cd ..
+        git clone https://github.com/MDAnalysis/stride.git
+        cd stride
+        git checkout 867a5eb0f2479cb16615512a53ee472c54649505
+        make -C src
+        cp src/stride "$GITHUB_WORKSPACE/stride"
 
     - name: Install msms
       run: | 
