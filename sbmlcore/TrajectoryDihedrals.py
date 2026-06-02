@@ -201,6 +201,7 @@ class TrajectoryDihedrals(object):
         and returns array of shape (timesteps, residues)
         """
 
+        _, Dihedral = _load_mdanalysis()
         selection_call = "res." + self.dihedral + "_selection()"
 
         # generate list of nonetype dihedral indexes (residue index)
