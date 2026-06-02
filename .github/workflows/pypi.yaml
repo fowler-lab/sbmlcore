@@ -34,6 +34,13 @@ jobs:
         cmake --build dssp/build --target mkdssp
         cp dssp/build/mkdssp .
 
+    - name: Install DSSP data files
+      run: |
+        mkdir -p "$GITHUB_WORKSPACE/libcifpp-data"
+        curl -L -o "$GITHUB_WORKSPACE/libcifpp-data/components.cif" https://files.wwpdb.org/pub/pdb/data/monomers/components.cif
+        curl -L -o "$GITHUB_WORKSPACE/libcifpp-data/mmcif_pdbx.dic" https://mmcif.wwpdb.org/dictionaries/ascii/mmcif_pdbx_v50.dic
+        echo "LIBCIFPP_DATA_DIR=$GITHUB_WORKSPACE/libcifpp-data" >> "$GITHUB_ENV"
+
     - name: Install stride
       run: |
         git clone https://github.com/MDAnalysis/stride.git stride-src
