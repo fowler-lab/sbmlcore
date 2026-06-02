@@ -356,6 +356,8 @@ class TrajectoryDihedrals(object):
         """Returns MDAnalysis.Universe with frames greater and
         less than the specified start and end times"""
 
+        MDAnalysis, _ = _load_mdanalysis()
+
         # Becuase a new universe is essentially being created, every coordinate in the original is needed
         coordinates = (
             MDAnalysis.analysis.base.AnalysisFromFunction(
@@ -395,6 +397,8 @@ class TrajectoryDihedrals(object):
     @staticmethod
     def _add_bonds(traj):
         """add bonds to protein (only) in a trajectory"""
+
+        MDAnalysis, _ = _load_mdanalysis()
 
         protein_res = traj.select_atoms("protein")
         # run the bond guessing algorithm
