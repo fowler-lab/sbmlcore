@@ -5,7 +5,7 @@ import sbmlcore
 
 try:
     import MDAnalysis
-except Exception as exc:  # pragma: no cover - environment dependent
+except ImportError as exc:  # pragma: no cover - environment dependent
     pytest.skip(f"MDAnalysis unavailable: {exc}", allow_module_level=True)
 
 
