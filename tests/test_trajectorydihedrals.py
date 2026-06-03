@@ -2,7 +2,11 @@ import pandas
 import numpy
 import pytest
 import sbmlcore
-import MDAnalysis
+
+try:
+    import MDAnalysis
+except ImportError as exc:  # pragma: no cover - environment dependent
+    pytest.skip(f"MDAnalysis unavailable: {exc}", allow_module_level=True)
 
 
 def test_missing_file():

@@ -22,26 +22,28 @@ jobs:
 
     - name: Install dssp
       run: |
-        sudo apt-get install libboost-all-dev
-        wget https://github.com/cmbi/dssp/archive/refs/tags/2.3.0.zip
-        mv 2.3.0.zip dssp-2.3.0.zip
-        unzip dssp-2.3.0.zip
-        cd dssp-2.3.0
-        ./autogen.sh
-        ./configure
-        make mkdssp
-        cp mkdssp ..
+        sudo apt-get update
+        sudo apt-get install -y cmake libboost-all-dev zlib1g-dev libbz2-dev
+        git clone --branch v4.5.8 --depth 1 https://github.com/PDB-REDO/dssp.git
+        cmake -S dssp -B dssp/build
+        cmake --build dssp/build --target mkdssp
+        cp dssp/build/mkdssp .
+
+    - name: Install DSSP data files
+      run: |
+        mkdir -p "$GITHUB_WORKSPACE/libcifpp-data"
+        curl -L -o "$GITHUB_WORKSPACE/libcifpp-data/components.cif" https://files.wwpdb.org/pub/pdb/data/monomers/components.cif
+        curl -L -o "$GITHUB_WORKSPACE/libcifpp-data/mmcif_pdbx.dic" https://mmcif.wwpdb.org/dictionaries/ascii/mmcif_pdbx_v50.dic
+        echo "LIBCIFPP_DATA_DIR=$GITHUB_WORKSPACE/libcifpp-data" >> "$GITHUB_ENV"
 
     - name: Install stride
       run: |
-        wget --no-check-certificate https://webclu.bio.wzw.tum.de/stride/stride.tar.gz
-        mkdir stride-src
-        mv stride.tar.gz stride-src/
+        git clone https://github.com/MDAnalysis/stride.git stride-src
         cd stride-src
-        tar zxvf stride.tar.gz
-        make
-        cp stride ..
-        cd ..
+        git checkout 867a5eb0f2479cb16615512a53ee472c54649505
+        make -C src
+        cp src/stride "$GITHUB_WORKSPACE/stride"
+        chmod +x "$GITHUB_WORKSPACE/stride"
 
     - name: Install msms
       run: | 
@@ -51,10 +53,10 @@ jobs:
     - name: Install Python dependencies
       run: |
         python3 -m pip install --upgrade pip
-        pip3 install .
+        pip3 install ".[dev]"
 
     - name: Test with pytest
       run: |
-        pytest --exitfirst --verbose --failed-first \
+        python -m pytest --exitfirst --verbose --failed-first \
         --cov=. --cov-report html
       

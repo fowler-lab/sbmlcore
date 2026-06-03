@@ -1,7 +1,17 @@
 import pandas
 import pathlib
-import MDAnalysis
 import sbmlcore
+
+
+def _load_mdanalysis():
+    try:
+        import MDAnalysis
+    except Exception as exc:  # pragma: no cover - environment dependent
+        raise ImportError(
+            "MDAnalysis is required for StructuralDistances. Install sbmlcore with the 'md' extra."
+        ) from exc
+
+    return MDAnalysis
 
 
 class StructuralDistances(object):
@@ -41,6 +51,7 @@ class StructuralDistances(object):
         # check file exists
         assert pathlib.Path(pdb_file).is_file(), "File does not exist!"
 
+        MDAnalysis = _load_mdanalysis()
         u = MDAnalysis.Universe(pdb_file)
 
         assert dataset_type in [

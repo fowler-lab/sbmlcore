@@ -2,9 +2,19 @@ import pathlib
 
 import pandas
 import numpy
-import MDAnalysis
-from MDAnalysis.analysis.dihedrals import Dihedral
 import sbmlcore
+
+
+def _load_mdanalysis():
+    try:
+        import MDAnalysis
+        from MDAnalysis.analysis.dihedrals import Dihedral
+    except Exception as exc:  # pragma: no cover - environment dependent
+        raise ImportError(
+            "MDAnalysis is required for TrajectoryDihedrals. Install sbmlcore with the 'md' extra."
+        ) from exc
+
+    return MDAnalysis, Dihedral
 
 
 class TrajectoryDihedrals(object):
@@ -106,6 +116,7 @@ class TrajectoryDihedrals(object):
         self.dihedral = dihedral
         self.angle_type = angle_type
 
+        MDAnalysis, Dihedral = _load_mdanalysis()
         first_pass = True
 
         for trajectory in trajectory_list:
@@ -190,6 +201,7 @@ class TrajectoryDihedrals(object):
         and returns array of shape (timesteps, residues)
         """
 
+        _, Dihedral = _load_mdanalysis()
         selection_call = "res." + self.dihedral + "_selection()"
 
         # generate list of nonetype dihedral indexes (residue index)
@@ -345,6 +357,8 @@ class TrajectoryDihedrals(object):
         """Returns MDAnalysis.Universe with frames greater and
         less than the specified start and end times"""
 
+        MDAnalysis, _ = _load_mdanalysis()
+
         # Becuase a new universe is essentially being created, every coordinate in the original is needed
         coordinates = (
             MDAnalysis.analysis.base.AnalysisFromFunction(
@@ -384,6 +398,8 @@ class TrajectoryDihedrals(object):
     @staticmethod
     def _add_bonds(traj):
         """add bonds to protein (only) in a trajectory"""
+
+        MDAnalysis, _ = _load_mdanalysis()
 
         protein_res = traj.select_atoms("protein")
         # run the bond guessing algorithm

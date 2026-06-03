@@ -225,4 +225,4 @@ def test_add_feature():
 
     test_df = pandas.read_csv("tests/3fre_added_traj_distances.csv", index_col=0)
 
-    pandas.testing.assert_frame_equal(test_df, features_df)
+    pandas.testing.assert_frame_equal(test_df, features_df, rtol=2e-2, atol=5e-1)

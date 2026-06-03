@@ -21,10 +21,14 @@ def test_stride_ok(tmp_path):
         stderr=subprocess.PIPE,
     )
 
-    process.wait()
+    stdout, stderr = process.communicate()
 
     # insist that the above command did not fail
-    assert process.returncode == 0
+    assert process.returncode == 0, (
+        f"stride failed with code {process.returncode}\n"
+        f"stdout:\n{stdout.decode(errors='replace')}\n"
+        f"stderr:\n{stderr.decode(errors='replace')}"
+    )
 
 
 
@@ -46,7 +50,11 @@ def test_dssp_ok(tmp_path):
         stderr=subprocess.PIPE,
     )
 
-    process.wait()
+    stdout, stderr = process.communicate()
 
     # insist that the above command did not fail
-    assert process.returncode == 0
+    assert process.returncode == 0, (
+        f"mkdssp failed with code {process.returncode}\n"
+        f"stdout:\n{stdout.decode(errors='replace')}\n"
+        f"stderr:\n{stderr.decode(errors='replace')}"
+    )
