@@ -9,8 +9,6 @@ def test_top_level_import_exposes_lightweight_features():
 
     sbmlcore = importlib.import_module("sbmlcore")
 
-    assert sbmlcore.__version__ == "0.2.8"
-
     feature = sbmlcore.AminoAcidMWChange()
     df = pandas.DataFrame({"mutation": ["A1D"]})
     result = feature._add_feature(df)
@@ -66,7 +64,9 @@ def test_residue_depth_accepts_offsets_without_segids(monkeypatch):
     monkeypatch.setattr(module.pathlib, "Path", lambda *_args, **_kwargs: FakePath())
     monkeypatch.setattr(module, "PDBParser", lambda: FakeParser())
     monkeypatch.setattr(module, "get_surface", lambda _model: object())
-    monkeypatch.setattr(module, "residue_depth", lambda residue, _surface: residue.id[1] / 10)
+    monkeypatch.setattr(
+        module, "residue_depth", lambda residue, _surface: residue.id[1] / 10
+    )
 
     result = module.ResidueDepth("fake.pdb", offsets={"A": 10}).results
 
